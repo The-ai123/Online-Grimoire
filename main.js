@@ -326,7 +326,12 @@ function update_night_wedge_text()
 //token functions
 function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, nameText)
 {
-  if (document.getElementById("body_actual").getAttribute("night") == "true") { visibility_toggle() }
+  // Force tokens to appear if we try to add one. 
+  // (Why can we even see the rolelist in townsquare mode?)
+  if (document.getElementById("body_actual").getAttribute("night") == "true") {
+    visibility_toggle()
+  }
+  // The div.
   var div = document.createElement("div");
   div.setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
   div.classList = "role_token drag";
@@ -338,38 +343,54 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   div.setAttribute("visibility", visibility);
   div.setAttribute("cat", cat);
   div.setAttribute("show_face", !hide_face);
+
+  // Death shroud.
   var death = document.createElement("img");
   death.src = "assets/shroud.png";
   death.classList = "token_death";
   death.id = id + "_" + uid + "_death";
   div.appendChild(death);
+
+  // ???
+  // Doesn't seem to be used for anything tbh
   var visibility_pip = document.createElement("div");
   visibility_pip.classList = "token_visibility_pip background_image";
   visibility_pip.id = id + "_" + uid + "_visibility_pip";
   div.appendChild(visibility_pip);
+
+  // Dead vote (TS mode)
   var vote = document.createElement("img");
   vote.src = "assets/vote_token.png";
   vote.classList = "token_vote";
   vote.id = id + "_" + uid + "_vote";
   div.appendChild(vote);
-  var oursider_betray = document.createElement("div");
+
+  // The role of travelers, when shown in TS mode. 
+  var outsider_betray = document.createElement("div");
   if (cat == "TRAV")
   {
-    oursider_betray.style.backgroundImage = "url('assets/icons/" + id + ".png')"
+    outsider_betray.style.backgroundImage = "url('assets/icons/" + id + ".png')"
   }
-  oursider_betray.classList = "token_oursider_betray background_image";
-  oursider_betray.id = id + "_" + uid + "_oursider_betray";
-  div.appendChild(oursider_betray);
+  outsider_betray.classList = "token_outsider_betray background_image";
+  outsider_betray.id = id + "_" + uid + "_outsider_betray";
+  div.appendChild(outsider_betray);
+
+  // Player name, if given.
   var name = document.createElement("span")
   name.innerHTML = nameText;
   name.classList = "token_text"
   name.id = id + "_name_" + uid;
   div.appendChild(name);
+
   document.getElementById("token_layer").appendChild(div);
+
+  // Random admin stuff.
   update_role_counts();
   player_count_change();
   dragInit();
   populate_night_order();
+
+  // This function is used by the loading code to place all the tokens.
   if (!loading) { save_game_state(); }
 }
 function spawnTokenDefault(id, visibility, cat, hide_face)
@@ -437,8 +458,8 @@ function mutate_token(idFrom, uid, idTo)
   let new_json = tokens_ref[idTo];
   let subject = document.getElementById(idFrom + "_token_" + uid);
   subject.setAttribute("cat", new_json["class"]);
-  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_oursider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
-  else { subject.getElementsByClassName("token_oursider_betray")[0].style.backgroundImage = "" }
+  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
+  else { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "" }
   subject.setAttribute("show_face", !new_json["hide_face"]);
   subject.setAttribute("role", new_json["id"]);
   subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')";
