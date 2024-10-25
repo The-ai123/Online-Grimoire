@@ -262,7 +262,7 @@ function visibility_toggle()
     {
       var id = tokens[i].getAttribute("role");
       var uid = tokens[i].getAttribute("uid");
-      tokens[i].style.backgroundImage = "url('assets/roles/" + id + "_token.png')"
+      tokens[i].style.backgroundImage = "url('assets/token.png')"
       tokens[i].setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
     }
   }
@@ -335,7 +335,8 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   var div = document.createElement("div");
   div.setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
   div.classList = "role_token drag";
-  div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
+  div.style = `background-image: url('assets/token.png'); left:${left}; top:${top}`
+  // div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
   div.id = id + "_token_" + uid;
   div.setAttribute("role", id);
   div.setAttribute("viability", viability);
@@ -344,6 +345,17 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   div.setAttribute("cat", cat);
   div.setAttribute("show_face", !hide_face);
 
+  // Actual picture.
+  var role = document.createElement("img");
+  role.src = `assets/icons/${id}.png`;
+  role.id = `${id}_${uid}_image`;
+  role.classList = "token_image background_image";
+  div.appendChild(role);
+
+  // The token name. 
+  var roleName = createRoleNameElement(id, uid);
+  div.appendChild(roleName);
+  
   // Death shroud.
   var death = document.createElement("img");
   death.src = "assets/shroud.png";
@@ -351,8 +363,7 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   death.id = id + "_" + uid + "_death";
   div.appendChild(death);
 
-  // ???
-  // Doesn't seem to be used for anything tbh
+  // The icon indicating if this token is hidden in TS (bluff, reminder, etc)
   var visibility_pip = document.createElement("div");
   visibility_pip.classList = "token_visibility_pip background_image";
   visibility_pip.id = id + "_" + uid + "_visibility_pip";
@@ -393,6 +404,43 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   // This function is used by the loading code to place all the tokens.
   if (!loading) { save_game_state(); }
 }
+
+function createRoleNameElement(id, uid)
+{
+  var roleName = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  roleName.setAttribute("viewBox", "0 0 150 150");
+  roleName.classList.add("token_role_name");
+  
+  // Create the path element
+  var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M 13 75 C 13 150, 138 150, 138 75");
+  path.setAttribute("id", "curve");
+  path.setAttribute("fill", "transparent");
+  roleName.appendChild(path);
+  
+  // Create the text element
+  var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("width", "150");
+  text.setAttribute("x", "62.5%");
+  text.setAttribute("y", "130");
+  text.setAttribute("text-anchor", "middle");
+  
+  // Create the textPath element
+  var textPath = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+  textPath.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#curve"); // Use setAttributeNS for xlink
+  textPath.setAttribute("style", "fill: black; font-family: Dumbledor; font-size: 24px;");
+  textPath.classList.add("js--character--name");
+  textPath.id = `${id}_${uid}_name_text`;
+  textPath.textContent = tokens_ref[id]["name"]; // Use textContent for dynamic text
+  
+  // Append textPath to text, and text to svg
+  text.appendChild(textPath);
+  roleName.appendChild(text);
+
+  return roleName;
+}
+
+
 function spawnTokenDefault(id, visibility, cat, hide_face)
 {
   var time = new Date();
@@ -453,22 +501,37 @@ function close_mutate_menu()
 {
   document.getElementById("mutate_menu_main").style.display = "none";
 }
+
 function mutate_token(idFrom, uid, idTo)
 {
   let new_json = tokens_ref[idTo];
+
   let subject = document.getElementById(idFrom + "_token_" + uid);
+
   subject.setAttribute("cat", new_json["class"]);
   if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
   else { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "" }
+
   subject.setAttribute("show_face", !new_json["hide_face"]);
   subject.setAttribute("role", new_json["id"]);
-  subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')";
+  subject.style.backgroundImage = "url('assets/token.png')"; // TODO
+  // subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')"; // TODO
   subject.setAttribute("onclick", "javascript:infoCall('" + idTo + "', " + uid + ")");
   subject.id = idTo + "_token_" + uid;
+
+  const image = document.getElementById(`${idFrom}_${uid}_image`);
+  image.id = `${idTo}_${uid}_image`;
+  image.src = `assets/icons/${idTo}.png`;
+
   document.getElementById(idFrom + "_" + uid + "_death").id = idTo + "_" + uid + "_death";
   document.getElementById(idFrom + "_" + uid + "_visibility_pip").id = idTo + "_" + uid + "_visibility_pip";
   document.getElementById(idFrom + "_" + uid + "_vote").id = idTo + "_" + uid + "_vote";
   document.getElementById(idFrom + "_name_" + uid).id = idTo + "_name_" + uid;
+
+  const name_text = document.getElementById(`${idFrom}_${uid}_name_text`);
+  name_text.id = `${idTo}_${uid}_name_text`;
+  name_text.textContent = new_json["name"];
+
   clean_tokens(uid);
   if (document.getElementById("info_box").style.display == "inherit") { infoCall(idTo, uid); }
   if (!loading) { save_game_state(); }
@@ -511,7 +574,7 @@ function populate_mutate_menu(tokens)
     var div = document.createElement("div");
     div.id = "mutate_menu_" + element["id"];
     div.classList = "background_image mutate_menu_token";
-    div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png";
+    div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
     if (element["class"] != "FAB")
     {
       document.getElementById("mutate_menu_" + element["class"]).appendChild(div);
@@ -1202,7 +1265,7 @@ function trigger_playerinfo_character_select(id)
 }
 function select_playerinfo_character(id, selection)
 {
-  document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')"
+  document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
 }
 function close_playerinfo_shroud()
 {
@@ -1230,8 +1293,12 @@ function dragInit()
 }
 function dragStart(e)
 {
-  if (document.getElementById("move_toggle").style.backgroundColor != "green" && e.target.classList.contains("role_token")) { return }
-  var pos = getComputedStyle(e.target)
+  console.log(e.target)
+  if (document.getElementById("move_toggle").style.backgroundColor != "green" && isRoleToken(e.target)) { return }
+  console.log("Hai")
+  const token = getActualDragged(e.target);
+  console.log(token)
+  var pos = getComputedStyle(token)
   if (e.type === "touchstart")
   {
     xOffset = e.touches[0].clientX - pos.getPropertyValue('left').match(/\d+/)[0];
@@ -1241,11 +1308,11 @@ function dragStart(e)
     xOffset = e.clientX - pos.getPropertyValue('left').match(/\d+/)[0];
     yOffset = e.clientY - pos.getPropertyValue('top').match(/\d+/)[0];
   }
-  if (e.target.classList.contains("drag"))
+  if (token.classList.contains("drag"))
   {
     active = true;
   }
-
+  console.log(active)
 }
 function dragEnd(e)
 {
@@ -1283,6 +1350,12 @@ function drag(e)
   {
 
     e.preventDefault();
+    let moved = e.target;
+
+    while (moved.localName != "html" && moved.localName != "div") {
+      moved = moved.parentElement;
+    }
+    //if (!moved.classList.contains("role_token")) return;
 
     if (e.type === "touchmove")
     {
@@ -1294,13 +1367,30 @@ function drag(e)
       currentY = e.clientY - yOffset;
     }
 
-    setTranslate(currentX, currentY, e.target);
+    setTranslate(currentX, currentY, moved);
   }
 }
 function setTranslate(xPos, yPos, el)
 {
   el.style.left = xPos + "px"
   el.style.top = yPos + "px"
+}
+
+function getActualDragged(el) {
+  let root = el;
+  while (root.localName != "body") {
+    if (root.classList.contains("role_token")) return root;
+    root = root.parentElement;
+  }
+  return el;
+}
+
+function isRoleToken(el) {
+  while (el.localName != "body") {
+    if (el.classList.contains("role_token")) return true;
+    el = el.parentElement;
+  }
+  return false;
 }
 
 

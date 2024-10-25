@@ -3,6 +3,11 @@
     src: url(assets/fonts/piratesbay.ttf);
 }
 
+@font-face {
+    font-family: Dumbledor;
+    src: url(assets/fonts/Dumbledor1.ttf);
+}
+
 @media screen and (orientation:portrait) {
     .body_background_image::before {transform: rotate(90deg); width: 100vh; height: 100vw; left: calc(50% - calc(100vh / 2)); top: calc(50% - calc(100vw / 2));}
     .background_select_scroll_item {width: 148px; height: 300px; margin: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer;}
@@ -100,18 +105,104 @@ html, body {overscroll-behavior: none;}
 .trashcan {position: absolute; bottom: 5px; left: 5px; width: 70px; height: 70px; opacity: 0.4; transition: opacity linear 0.1s; cursor: pointer; border-radius: 10px; background-image: url("assets/delete.png"); background-position: center; background-repeat: no-repeat; background-size: contain;}
 .trashcan:hover {opacity: 0.7;}
 
-.role_token {height: 150px; width: 150px; position: absolute; background-repeat: no-repeat; background-size: cover; left: 0px; border-radius: 100%; background-image: url(assets/alive_token.png); pointer-events: all; cursor: pointer;}
-.role_token[viability*="dead"] {background-image: url(assets/dead_token.png);}
-#body_actual[night="true"] .role_token:not([visibility="show"]) {display: none;}
-.token_death {width: 50px; pointer-events: none; position: absolute; left: 50px; top: 7px; display: none;}
-#body_actual[night="false"] .role_token[viability*="dead"] .token_death {display: inherit;}
-.token_vote {width: 100px; pointer-events: none; position: absolute; left: 25px; top: 25px; display: none;}
-#body_actual[night="true"] .role_token[viability="dead_vote"] .token_vote {display: inherit;}
-.token_visibility_pip {width: 35%; height: 35%; position: absolute; right: 25px; bottom: 25px; pointer-events: none; display: none;}
-.role_token[visibility="hide"] .token_visibility_pip {display: inherit; background-image: url(assets/visibility_off_red.png);}
-.role_token[visibility="bluff"] .token_visibility_pip {display: inherit; background-image: url(assets/visibility_off_yellow.png);}
-.token_outsider_betray {width: 80%; height: 80%; position: absolute; top: 15px; left: 15px; pointer-events: none; display: none;}
-#body_actual[night="true"] .token_outsider_betray {display: inherit;}
+/* Properties of draggable tokens on the screen. */
+.role_token {
+    height: 150px; 
+    width: 150px; 
+    position: absolute; 
+    background-repeat: no-repeat; 
+    background-size: cover; 
+    left: 0px; 
+    border-radius: 100%; 
+    background-image: url(assets/alive_token.png); 
+    pointer-events: all; 
+    cursor: move;
+}
+
+.token_image {
+    top: 0px;
+    left: 7.5px;
+    position: absolute;
+    width: 135px;
+    height: 135px;
+    pointer-events: none;
+}
+#body_actual[night="true"] .token_image {
+    display: none;
+}
+
+.token_role_name {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+}
+#body_actual[night="true"] .token_role_name {
+    display: none;
+}
+
+.role_token[viability*="dead"] {
+    background-image: url(assets/dead_token.png);
+}
+#body_actual[night="true"] .role_token:not([visibility="show"]) {
+    display: none;
+}
+
+.token_death {
+    width: 50px; 
+    pointer-events: none; 
+    position: absolute; 
+    left: 50px; 
+    top: 7px; 
+    display: none;
+}
+#body_actual[night="false"] .role_token[viability*="dead"] .token_death {
+    display: inherit;
+}
+
+.token_vote {
+    width: 100px; 
+    pointer-events: none; 
+    position: absolute; 
+    left: 25px; 
+    top: 25px; 
+    display: none;
+}
+#body_actual[night="true"] .role_token[viability="dead_vote"] .token_vote {
+    display: inherit;
+}
+
+.token_visibility_pip {
+    width: 35%; 
+    height: 35%; 
+    position: absolute; 
+    right: 25px; 
+    bottom: 25px; 
+    pointer-events: none; 
+    display: none;
+}
+.role_token[visibility="hide"] .token_visibility_pip {
+    display: inherit; 
+    background-image: url(assets/visibility_off_red.png);
+}
+.role_token[visibility="bluff"] .token_visibility_pip {
+    display: inherit; 
+    background-image: url(assets/visibility_off_yellow.png);
+}
+
+.token_outsider_betray {
+    width: 80%; 
+    height: 80%; 
+    position: absolute; 
+    top: 15px; 
+    left: 15px; 
+    pointer-events: none; 
+    display: none;
+}
+#body_actual[night="true"] .token_outsider_betray {
+    display: inherit;
+}
 
 #nightorder_button_container {position: absolute; top: 0px; right: 0px; width: 400px; height: 45px; display: inline-block; display: flex;}
 .night_select {width: 100px; display: block; height: 41px; text-align: center; font-family: PiratesBay; font-size: 28pt; border: black 2px solid; background-image: url("assets/vines.png"); color: #afafaf; cursor: pointer; user-select: none;}
