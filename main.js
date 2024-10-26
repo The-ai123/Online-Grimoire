@@ -1328,7 +1328,17 @@ function trigger_playerinfo_character_select(id)
 
 function select_playerinfo_character(id, selection)
 {
-  document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
+  const div = document.createElement("div");
+  generateSampleToken(selection, div);
+
+  div.style.position = "absolute";
+  div.style.left = 25;
+  div.style.width = 300;
+  div.style.height = 300;
+  
+  document.getElementById("playerinfo_character_" + id).innerText = "";
+  document.getElementById("playerinfo_character_" + id).appendChild(div);
+  //document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
 }
 
 function close_playerinfo_shroud()
