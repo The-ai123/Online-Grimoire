@@ -574,8 +574,9 @@ function populate_mutate_menu(tokens)
   {
     var div = document.createElement("div");
     div.id = "mutate_menu_" + element["id"];
+    generateSampleToken(element["id"], div);
     div.classList = "background_image mutate_menu_token";
-    div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
+    // div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
     if (element["class"] != "FAB")
     {
       document.getElementById("mutate_menu_" + element["class"]).appendChild(div);
@@ -1058,6 +1059,7 @@ function generateSampleToken(id, el) {
 
   var role = document.createElement("img");
   role.id = "info_img_role";
+  role.style.position = "absolute";
   role.src = `assets/icons/${id}.png`;
   el.appendChild(role);
 
