@@ -337,7 +337,6 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   div.setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
   div.classList = "role_token drag";
   div.style = `background-image: url('assets/token.png'); left:${left}; top:${top}`
-  // div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
   div.id = id + "_token_" + uid;
   div.setAttribute("role", id);
   div.setAttribute("viability", viability);
@@ -515,8 +514,7 @@ function mutate_token(idFrom, uid, idTo)
 
   subject.setAttribute("show_face", !new_json["hide_face"]);
   subject.setAttribute("role", new_json["id"]);
-  subject.style.backgroundImage = "url('assets/token.png')"; // TODO
-  // subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')"; // TODO
+  subject.style.backgroundImage = "url('assets/token.png')";
   subject.setAttribute("onclick", "javascript:infoCall('" + idTo + "', " + uid + ")");
   subject.id = idTo + "_token_" + uid;
 
@@ -576,7 +574,6 @@ function populate_mutate_menu(tokens)
     div.id = "mutate_menu_" + element["id"];
     generateSampleToken(element["id"], div);
     div.classList = "background_image mutate_menu_token";
-    // div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
     if (element["class"] != "FAB")
     {
       document.getElementById("mutate_menu_" + element["class"]).appendChild(div);
@@ -1010,9 +1007,7 @@ async function infoCall(id, uid)
 {
   close_menu();
   let data_token = document.getElementById(id + "_token_" + uid);
-  //document.getElementById("info_img").src = "assets/roles/" + id + "_token.png"; // TODO
   generateSampleToken(id,  document.getElementById("info_img"));
-  // document.getElementById("info_img").innerHTML = createSampleToken(id).innerHTML;
   var roleJSON = tokens_ref[id];
   document.getElementById("info_title_field").innerHTML = roleJSON["name"];
   document.getElementById("info_name_field").innerHTML = data_token.children.namedItem(id + "_name_" + uid).innerHTML;
@@ -1020,18 +1015,8 @@ async function infoCall(id, uid)
   document.getElementById("info_desc_field").innerHTML = roleJSON["description"];
   document.getElementById("info_list").setAttribute("current_player", id);
   document.getElementById("info_token_landing").innerHTML = "";
-  for (var i = 0; i < roleJSON["tokens"].length; i++)
-  {
-    var div = document.createElement("div");
-    div.className = "info_tokens";
-    TokenId = roleJSON["tokens"][i]
-    div.style.backgroundImage = "url('assets/reminders/" + TokenId + ".png')";
-    div.id = "info_" + roleJSON["tokens"][i] + "_" + uid;
-    document.getElementById("info_token_landing").appendChild(div);
-  }
   document.getElementById("info_remove_player").setAttribute("onclick", "javascript:remove_token('" + id + "', '" + uid + "')");
   document.getElementById("info_kill_cycle").setAttribute("onclick", "javascript:info_death_cycle_trigger('" + id + "', '" + uid + "')");
-  update_info_death_cycle(id, uid);
   document.getElementById("info_visibility_toggle").setAttribute("onclick", "javascript:cycle_token_visibility_toggle('" + id + "', '" + uid + "')");
   document.getElementById("info_edit_role").setAttribute("onclick", "javascript:mutate_menu('" + id + "', '" + uid + "')");
   document.getElementById("info_box").setAttribute("hidden", data_token.getAttribute("visibility"));
@@ -1039,13 +1024,35 @@ async function infoCall(id, uid)
   document.getElementById("info_name_input").setAttribute("onchange", "javascript:nameIn('" + id + "', " + uid + ")");
   document.getElementById("info_box").style.display = "inherit";
   document.getElementById("info_token_dragbox").innerHTML = "";
-  var tokens = document.getElementById("info_token_landing").children;
-  for (i = 0; i < tokens.length; i++)
+
+  update_info_death_cycle(id, uid);
+
+  const landing = document.getElementById("info_token_landing");
+  for (var i = 0; i < roleJSON["tokens"].length; i++)
   {
-    let x = tokens[i].getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
-    let y = tokens[i].getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-    spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
+    const div = generateReminderBacking(roleJSON["tokens"][i], uid);
+    // div.setAttribute("reminderId", i);
+    document.getElementById("info_token_landing").appendChild(div);
+
+    const x = div.getBoundingClientRect().x - landing.getBoundingClientRect().x;
+    const y = div.getBoundingClientRect().y - landing.getBoundingClientRect().y;
+    spawnReminderGhost(x, y, roleJSON["tokens"][i], div.id)
+
+    // var div = document.createElement("div");
+    // div.className = "info_tokens"; // TODO: Punt this crap!
+    // TokenId = roleJSON["tokens"][i]
+    // div.style.backgroundImage = "url('assets/reminders/" + TokenId + ".png')";
+    // div.id = "info_" + roleJSON["tokens"][i] + "_" + uid;
+    // document.getElementById("info_token_landing").appendChild(div);
   }
+  // var tokens = document.getElementById("info_token_landing").children;
+  // for (i = 0; i < tokens.length; i++)
+  // {
+  //   let x = tokens[i].getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
+  //   let y = tokens[i].getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
+  //   console.log("First trigger");
+  //   spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
+  // }
 }
 
 function generateSampleToken(id, el) {
@@ -1095,22 +1102,82 @@ function generateSampleToken(id, el) {
   return el;
 }
 
-function spawnReminderGhost(x, y, imgUrl, longId)
+function generateReminderBacking(tokenId, uid) {
+  function capitalize(x) {
+    return x[0].toUpperCase() + x.substring(1);
+  }
+
+  tokenWords = tokenId.split("_");
+
+  var div = document.createElement("div");
+  div.className = "info_tokens"; // TODO: Punt this crap!
+  div.id = "info_" + tokenId + "_" + uid;
+  
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  console.log(tokenId)
+  role.src = `assets/icons/${tokenWords[0]}.png`; // TODO: Get ID from callers
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = tokenWords.slice(1).map(x => capitalize(x)).join(" ");
+  text.classList = "reminder_ghost_text";
+  div.appendChild(text);
+  
+  return div;
+  // document.getElementById("info_token_landing").appendChild(div);
+}
+
+function spawnReminderGhost(x, y, tokenId, longId)
 {
+  // Create a reminder that we put in the info box. 
+  // This is slightly larger than the actual reminder, and appears larger until we put it onto the page.
   var time = new Date();
   var uid = time.getTime();
+
+  function capitalize(x) {
+    return x[0].toUpperCase() + x.substring(1);
+  }
+
+  tokenWords = tokenId.split("_");
+
   var div = document.createElement("div");
   div.classList = "info_tokens_drag drag";
-  div.style = "background-image: " + imgUrl + "; left: " + x + "; top: " + y + "; border-radius: 100%; pointer-events: all; width: 100px; height 100px;";
+  div.style = `left: ${x}; top: ${y}; border-radius: 100%; pointer-events: all; width: 100px; height 100px;`
   div.id = longId + "_" + uid;
   div.setAttribute("ghost", "true");
   div.setAttribute("token_from", "info");
-  var img = document.createElement("img");
-  img.style = "width: 80%; height: 80%; margin: 10%; pointer-events: none; display: none; border-radius: 100%; user-select: none";
-  img.src = "assets/delete.png";
-  img.id = longId + "_" + uid + "_img";
-  div.appendChild(img);
+
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  role.src = `assets/icons/${tokenWords[0]}.png`; // TODO: Get ID from callers
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = tokenWords.slice(1).map(x => capitalize(x)).join(" ");
+  text.classList = "reminder_ghost_text";
+  div.appendChild(text);
+
   document.getElementById("info_token_dragbox").prepend(div);
+
   dragInit();
 }
 
@@ -1335,10 +1402,9 @@ function select_playerinfo_character(id, selection)
   div.style.left = 25;
   div.style.width = 300;
   div.style.height = 300;
-  
+
   document.getElementById("playerinfo_character_" + id).innerText = "";
   document.getElementById("playerinfo_character_" + id).appendChild(div);
-  //document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
 }
 
 function close_playerinfo_shroud()
@@ -1386,6 +1452,7 @@ function dragStart(e)
 }
 function dragEnd(e)
 {
+  // The good, evil, and generic reminder tokens.
   if (e.target.getAttribute("disposable-reminder"))
   {
     if (e.target.getAttribute("stacked") == "true")
@@ -1396,14 +1463,24 @@ function dragEnd(e)
     e.target.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + e.target.id + "')");
     e.target.style.cursor = "pointer";
   }
+  
+  // If a new reminder token is to be instantiated.
   if (e.target.getAttribute("ghost") == "true")
   {
-    spawnReminder(e.target.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), e.target.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), e.target.getBoundingClientRect().left + 10, e.target.getBoundingClientRect().top + 10);
+    spawnReminder(
+        e.target.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), 
+        e.target.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), 
+        e.target.getBoundingClientRect().left + 10, e.target.getBoundingClientRect().top + 10
+    );
     if (e.target.getAttribute("token_from") == "info")
     {
       let x = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
       let y = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-      spawnReminderGhost(x, y, e.target.style.backgroundImage, e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1));
+      console.log(e.target);
+      const img = e.target.children[1].src;
+      console.log(img.split("/"));
+      // SCUFFED AF
+      spawnReminderGhost(x, y, img.split("/")[5].split(".")[0], e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1));
     }// else if (e.target.getAttribute("token_from") == "night_order") {
     //   let x = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
     //   let y = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
