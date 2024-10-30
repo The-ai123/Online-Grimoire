@@ -3,6 +3,11 @@
     src: url(assets/fonts/piratesbay.ttf);
 }
 
+@font-face {
+    font-family: Dumbledor;
+    src: url(assets/fonts/Dumbledor1.ttf);
+}
+
 @media screen and (orientation:portrait) {
     .body_background_image::before {transform: rotate(90deg); width: 100vh; height: 100vw; left: calc(50% - calc(100vh / 2)); top: calc(50% - calc(100vw / 2));}
     .background_select_scroll_item {width: 148px; height: 300px; margin: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer;}
@@ -16,6 +21,7 @@
 
 body {overflow: hidden;}
 html, body {overscroll-behavior: none;}
+svg {pointer-events: none;}
 
 .background_image {background-position: center; background-repeat: no-repeat; background-size: contain;}
 
@@ -35,21 +41,74 @@ html, body {overscroll-behavior: none;}
 /*new info*/
 #info_box {position: absolute; left: 0px; bottom: 0px; width: 100%; height: 250px; background-image: url('assets/vines.png'); white-space: nowrap; overflow: visible;}
 .info_tab {height: 250px; top: 0px; display: inline-block; color: white; text-align: center; left: 0px; position: relative; overflow: hidden;}
-.info_tab_header {height: 250px; cursor: pointer;}
-.info_tab_img {width: 100%; margin-top: 75px;}
+.info_tab_header {
+    height: 250px; 
+    cursor: pointer;
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; */
+}
+.info_tab_img {
+    width: 100%; 
+    margin-top: 75px;
+    align-items: center;
+}
 
 #info_desc {width: 250px; transition: width ease-in-out 0.2s;}
 #info_desc:is([focus="true"]) {width: calc(100% - 315px);}
-#info_desc:not([focus="true"]) #info_img {width: 200px; height: 200px;}
-#info_img {width: 250px; height: 250px; border-radius: 100%; transition: width ease-in-out 0.2s, height ease-in-out 0.2s;}
-#info_visibility_shade {position: absolute; top: 0px; left: 0px; height: 250px; width: 250px; pointer-events: none; background-color: black; opacity: 0.5; border-radius: 100%; display: none; transition: width ease-in-out 0.2s, height ease-in-out 0.2s, left ease-in-out 0.2s;}
-#info_visibility_img {position: absolute; top: 0px; left: 0px; height: 250px; width: 250px; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: 60%; display: none; border-radius: 100%; transition: width ease-in-out 0.2s, height ease-in-out 0.2s, left ease-in-out 0.2s, padding ease-in-out 0.2s;}
+#info_desc:not([focus="true"]) #info_img {
+    width: 200px; 
+    height: 200px;
+}
+#info_img {
+    width: 250px; 
+    height: 250px; 
+    position: absolute;
+    left: 0px;
+    overflow: hidden;
+    border-radius: 100%;
+    transition: width ease-in-out 0.5s, 
+    height ease-in-out 0.5s,
+    left ease-in-out 0.5s;
+}
+#info_desc:not([focus="true"]) #info_img {
+    left: 25px;
+}
+#info_img_role {
+    position: absolute;
+    top: 0;
+    /* Center horizontally with this one weird trick! */
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+#info_visibility_shade {position: absolute; top: 0px; left: 0px; height: 250px; width: 250px; pointer-events: none; background-color: black; opacity: 0.5; border-radius: 100%; display: none; transition: width ease-in-out 0.5s, height ease-in-out 0.5s, left ease-in-out 0.5s;}
+#info_visibility_img {position: absolute; top: 0px; left: 0px; height: 250px; width: 250px; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: 60%; display: none; border-radius: 100%; transition: width ease-in-out 0.5s, height ease-in-out 0.5s, left ease-in-out 0.5s, padding ease-in-out 0.5s;}
 #info_desc:not([focus="true"]) #info_visibility_shade {width: 200px; height: 200px; left: 25px;}
 #info_box:is([hidden="hide"]) #info_visibility_shade {display: inherit;}
 #info_box:is([hidden="bluff"]) #info_visibility_shade {display: inherit;}
 #info_desc:not([focus="true"]) #info_visibility_img {width: 200px; height: 200px; left: 25px;}
 #info_box:is([hidden="hide"]) #info_visibility_img {display: inherit; background-image: url(assets/visibility_off_red.png);}
 #info_box:is([hidden="bluff"]) #info_visibility_img {display: inherit; background-image: url(assets/visibility_off_yellow.png);}
+
+#info_img_name {
+    position: absolute;
+    bottom: -30px;
+    display: block; 
+    color:rgb(192, 72, 72); 
+    font-size: 20pt; 
+    font-family: PiratesBay;
+    width: 250px;
+    text-align: center;
+    transition: bottom ease-in-out 0.5s;
+}
+#info_desc:not([focus="true"]) #info_img_name {
+    bottom: 20px;
+    
+}
 
 #info_title_field {height: 100px; position: absolute; top: 0px; left: 0px; color:rgb(211, 211, 211); font-size: 50pt; font-family: PiratesBay;}
 #info_name_field {position: absolute; top: 70px; left: 30px; color:rgb(192, 72, 72); font-size: 17pt; font-family: PiratesBay;}
@@ -100,18 +159,104 @@ html, body {overscroll-behavior: none;}
 .trashcan {position: absolute; bottom: 5px; left: 5px; width: 70px; height: 70px; opacity: 0.4; transition: opacity linear 0.1s; cursor: pointer; border-radius: 10px; background-image: url("assets/delete.png"); background-position: center; background-repeat: no-repeat; background-size: contain;}
 .trashcan:hover {opacity: 0.7;}
 
-.role_token {height: 150px; width: 150px; position: absolute; background-repeat: no-repeat; background-size: cover; left: 0px; border-radius: 100%; background-image: url(assets/alive_token.png); pointer-events: all; cursor: pointer;}
-.role_token[viability*="dead"] {background-image: url(assets/dead_token.png);}
-#body_actual[night="true"] .role_token:not([visibility="show"]) {display: none;}
-.token_death {width: 50px; pointer-events: none; position: absolute; left: 50px; top: 7px; display: none;}
-#body_actual[night="false"] .role_token[viability*="dead"] .token_death {display: inherit;}
-.token_vote {width: 100px; pointer-events: none; position: absolute; left: 25px; top: 25px; display: none;}
-#body_actual[night="true"] .role_token[viability="dead_vote"] .token_vote {display: inherit;}
-.token_visibility_pip {width: 35%; height: 35%; position: absolute; right: 25px; bottom: 25px; pointer-events: none; display: none;}
-.role_token[visibility="hide"] .token_visibility_pip {display: inherit; background-image: url(assets/visibility_off_red.png);}
-.role_token[visibility="bluff"] .token_visibility_pip {display: inherit; background-image: url(assets/visibility_off_yellow.png);}
-.token_oursider_betray {width: 80%; height: 80%; position: absolute; top: -15px; left: -15px; pointer-events: none; display: none;}
-#body_actual[night="true"] .token_oursider_betray {display: inherit;}
+/* Properties of draggable tokens on the screen. */
+.role_token {
+    height: 150px; 
+    width: 150px; 
+    position: absolute; 
+    background-repeat: no-repeat; 
+    background-size: cover; 
+    left: 0px; 
+    border-radius: 100%; 
+    background-image: url(assets/alive_token.png); 
+    pointer-events: all; 
+    cursor: move;
+}
+
+.token_image {
+    top: 0px;
+    left: 7.5px;
+    position: absolute;
+    width: 135px;
+    height: 135px;
+    pointer-events: none;
+}
+#body_actual[night="true"] .token_image {
+    display: none;
+}
+
+.token_role_name {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+}
+#body_actual[night="true"] .token_role_name {
+    display: none;
+}
+
+.role_token[viability*="dead"] {
+    background-image: url(assets/dead_token.png);
+}
+#body_actual[night="true"] .role_token:not([visibility="show"]) {
+    display: none;
+}
+
+.token_death {
+    width: 50px; 
+    pointer-events: none; 
+    position: absolute; 
+    left: 50px; 
+    top: 7px; 
+    display: none;
+}
+#body_actual[night="false"] .role_token[viability*="dead"] .token_death {
+    display: inherit;
+}
+
+.token_vote {
+    width: 100px; 
+    pointer-events: none; 
+    position: absolute; 
+    left: 25px; 
+    top: 25px; 
+    display: none;
+}
+#body_actual[night="true"] .role_token[viability="dead_vote"] .token_vote {
+    display: inherit;
+}
+
+.token_visibility_pip {
+    width: 35%; 
+    height: 35%; 
+    position: absolute; 
+    right: 25px; 
+    bottom: 25px; 
+    pointer-events: none; 
+    display: none;
+}
+.role_token[visibility="hide"] .token_visibility_pip {
+    display: inherit; 
+    background-image: url(assets/visibility_off_red.png);
+}
+.role_token[visibility="bluff"] .token_visibility_pip {
+    display: inherit; 
+    background-image: url(assets/visibility_off_yellow.png);
+}
+
+.token_outsider_betray {
+    width: 80%; 
+    height: 80%; 
+    position: absolute; 
+    top: 15px; 
+    left: 15px; 
+    pointer-events: none; 
+    display: none;
+}
+#body_actual[night="true"] .token_outsider_betray {
+    display: inherit;
+}
 
 #nightorder_button_container {position: absolute; top: 0px; right: 0px; width: 400px; height: 45px; display: inline-block; display: flex;}
 .night_select {width: 100px; display: block; height: 41px; text-align: center; font-family: PiratesBay; font-size: 28pt; border: black 2px solid; background-image: url("assets/vines.png"); color: #afafaf; cursor: pointer; user-select: none;}
@@ -133,7 +278,15 @@ html, body {overscroll-behavior: none;}
 .mutate_menu_main {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: #000000b7; display: none;}
 .mutate_menu_scroll_body {display: inline-block; height: 100%; width: 70%; pointer-events: all; background-color: #000000b7; border-radius: 100px; padding: 50px; overflow-y: scroll; scrollbar-width: none;}
 .mutate_menu_scroll_body::-webkit-scrollbar {display: none;}
-.mutate_menu_token {display: inline-block; height: 120px; width: 120px; cursor: pointer;}
+.mutate_menu_token {
+    display: inline-block; 
+    height: 120px; 
+    width: 120px; 
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 100%;
+}
 #menu_settings_dropdown{height: 40px; overflow: hidden; border-radius: 20px; transition: height ease-in-out 0.2s; background-color: #ffffff2c;}
 /*#menu_settings_dropdown:is([expand="true"]) {height: 535px;}*/
 #menu_settings_dropdown_button {width: 100%; height: 40px; position: relative; text-align: center; border-radius: 40px; background-image: url(assets/steel_bg.png); cursor: pointer; background-position: 50% 50%; background-size: cover; background-repeat: no-repeat;}
@@ -167,7 +320,20 @@ html, body {overscroll-behavior: none;}
 #playerinfo_close {position: absolute; top: 5px; right: 5px; width: 85px; height: 85px; opacity: 0.4; transition: opacity linear 0.1s; cursor: pointer; background-image: url("assets/close.png");}
 #playerinfo_close:hover {opacity: 0.6;}
 #playerinfo_character_landing {text-align: center; width: 100%; pointer-events: all;}
-.playerinfo_character {margin: 10px; width: 350px; height: 300px; background-color: #44444494; border-radius: 25px; display: inline-block; cursor: pointer; background-image: url(assets/person_add.png); background-position: center; background-size: auto 90%; background-repeat: no-repeat;}
+.playerinfo_character {
+    position: relative;
+    margin: 10px; 
+    width: 350px; 
+    height: 300px; 
+    background-color: #44444494; 
+    border-radius: 25px; 
+    display: inline-block; 
+    cursor: pointer; 
+    background-image: url(assets/person_add.png); 
+    background-position: center; 
+    background-size: auto 80%; 
+    background-repeat: no-repeat;
+}
 #playerinfo_input {height: 70px; width: 65%; font-size: 40pt; text-align: center;}
 #playerinfo_body {pointer-events: none;}
 

@@ -262,7 +262,7 @@ function visibility_toggle()
     {
       var id = tokens[i].getAttribute("role");
       var uid = tokens[i].getAttribute("uid");
-      tokens[i].style.backgroundImage = "url('assets/roles/" + id + "_token.png')"
+      tokens[i].style.backgroundImage = "url('assets/token.png')"
       tokens[i].setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
     }
   }
@@ -326,11 +326,18 @@ function update_night_wedge_text()
 //token functions
 function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, nameText)
 {
-  if (document.getElementById("body_actual").getAttribute("night") == "true") { visibility_toggle() }
+  // Force tokens to appear if we try to add one. 
+  // (Why can we even see the rolelist in townsquare mode?)
+  if (document.getElementById("body_actual").getAttribute("night") == "true") {
+    visibility_toggle()
+  }
+
+  // The div.
   var div = document.createElement("div");
   div.setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
   div.classList = "role_token drag";
-  div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
+  div.style = `background-image: url('assets/token.png'); left:${left}; top:${top}`
+  // div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
   div.id = id + "_token_" + uid;
   div.setAttribute("role", id);
   div.setAttribute("viability", viability);
@@ -338,40 +345,103 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   div.setAttribute("visibility", visibility);
   div.setAttribute("cat", cat);
   div.setAttribute("show_face", !hide_face);
+
+  // Actual picture.
+  var role = document.createElement("img");
+  role.src = `assets/icons/${id}.png`;
+  role.id = `${id}_${uid}_image`;
+  role.classList = "token_image background_image";
+  div.appendChild(role);
+
+  // The token name. 
+  var roleName = createRoleNameElement(id, uid);
+  div.appendChild(roleName);
+  
+  // Death shroud.
   var death = document.createElement("img");
   death.src = "assets/shroud.png";
   death.classList = "token_death";
   death.id = id + "_" + uid + "_death";
   div.appendChild(death);
+
+  // The icon indicating if this token is hidden in TS (bluff, reminder, etc)
   var visibility_pip = document.createElement("div");
   visibility_pip.classList = "token_visibility_pip background_image";
   visibility_pip.id = id + "_" + uid + "_visibility_pip";
   div.appendChild(visibility_pip);
+
+  // Dead vote (TS mode)
   var vote = document.createElement("img");
   vote.src = "assets/vote_token.png";
   vote.classList = "token_vote";
   vote.id = id + "_" + uid + "_vote";
   div.appendChild(vote);
-  var oursider_betray = document.createElement("div");
+
+  // The role of travelers, when shown in TS mode. 
+  var outsider_betray = document.createElement("div");
   if (cat == "TRAV")
   {
-    oursider_betray.style.backgroundImage = "url('assets/icons/" + id + ".png')"
+    outsider_betray.style.backgroundImage = "url('assets/icons/" + id + ".png')"
   }
-  oursider_betray.classList = "token_oursider_betray background_image";
-  oursider_betray.id = id + "_" + uid + "_oursider_betray";
-  div.appendChild(oursider_betray);
+  outsider_betray.classList = "token_outsider_betray background_image";
+  outsider_betray.id = id + "_" + uid + "_outsider_betray";
+  div.appendChild(outsider_betray);
+
+  // Player name, if given.
   var name = document.createElement("span")
   name.innerHTML = nameText;
   name.classList = "token_text"
   name.id = id + "_name_" + uid;
   div.appendChild(name);
+
   document.getElementById("token_layer").appendChild(div);
+
+  // Random admin stuff.
   update_role_counts();
   player_count_change();
   dragInit();
   populate_night_order();
+
+  // This function is used by the loading code to place all the tokens.
   if (!loading) { save_game_state(); }
 }
+
+function createRoleNameElement(id, uid)
+{
+  var roleName = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  roleName.setAttribute("viewBox", "0 0 150 150");
+  roleName.classList.add("token_role_name");
+  
+  // Create the path element
+  var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M 13 75 C 13 150, 138 150, 138 75");
+  path.setAttribute("id", "curve");
+  path.setAttribute("fill", "transparent");
+  roleName.appendChild(path);
+  
+  // Create the text element
+  var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("width", "150");
+  text.setAttribute("x", "62.5%");
+  text.setAttribute("y", "130");
+  text.setAttribute("text-anchor", "middle");
+  
+  // Create the textPath element
+  var textPath = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+  textPath.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#curve"); // Use setAttributeNS for xlink
+  textPath.setAttribute("style", "fill: black; font-family: Dumbledor; font-size: 24px;");
+  textPath.classList.add("js--character--name");
+  textPath.id = `${id}_${uid}_name_text`;
+  textPath.textContent = tokens_ref[id]["name"]; // Use textContent for dynamic text
+  
+  // Append textPath to text, and text to svg
+  text.appendChild(textPath);
+  roleName.appendChild(text);
+
+  return roleName;
+}
+
+
 function spawnTokenDefault(id, visibility, cat, hide_face)
 {
   var time = new Date();
@@ -432,22 +502,37 @@ function close_mutate_menu()
 {
   document.getElementById("mutate_menu_main").style.display = "none";
 }
+
 function mutate_token(idFrom, uid, idTo)
 {
   let new_json = tokens_ref[idTo];
+
   let subject = document.getElementById(idFrom + "_token_" + uid);
+
   subject.setAttribute("cat", new_json["class"]);
-  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_oursider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
-  else { subject.getElementsByClassName("token_oursider_betray")[0].style.backgroundImage = "" }
+  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
+  else { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "" }
+
   subject.setAttribute("show_face", !new_json["hide_face"]);
   subject.setAttribute("role", new_json["id"]);
-  subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')";
+  subject.style.backgroundImage = "url('assets/token.png')"; // TODO
+  // subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')"; // TODO
   subject.setAttribute("onclick", "javascript:infoCall('" + idTo + "', " + uid + ")");
   subject.id = idTo + "_token_" + uid;
+
+  const image = document.getElementById(`${idFrom}_${uid}_image`);
+  image.id = `${idTo}_${uid}_image`;
+  image.src = `assets/icons/${idTo}.png`;
+
   document.getElementById(idFrom + "_" + uid + "_death").id = idTo + "_" + uid + "_death";
   document.getElementById(idFrom + "_" + uid + "_visibility_pip").id = idTo + "_" + uid + "_visibility_pip";
   document.getElementById(idFrom + "_" + uid + "_vote").id = idTo + "_" + uid + "_vote";
   document.getElementById(idFrom + "_name_" + uid).id = idTo + "_name_" + uid;
+
+  const name_text = document.getElementById(`${idFrom}_${uid}_name_text`);
+  name_text.id = `${idTo}_${uid}_name_text`;
+  name_text.textContent = new_json["name"];
+
   clean_tokens(uid);
   if (document.getElementById("info_box").style.display == "inherit") { infoCall(idTo, uid); }
   if (!loading) { save_game_state(); }
@@ -489,8 +574,9 @@ function populate_mutate_menu(tokens)
   {
     var div = document.createElement("div");
     div.id = "mutate_menu_" + element["id"];
+    generateSampleToken(element["id"], div);
     div.classList = "background_image mutate_menu_token";
-    div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png";
+    // div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
     if (element["class"] != "FAB")
     {
       document.getElementById("mutate_menu_" + element["class"]).appendChild(div);
@@ -924,7 +1010,9 @@ async function infoCall(id, uid)
 {
   close_menu();
   let data_token = document.getElementById(id + "_token_" + uid);
-  document.getElementById("info_img").src = "assets/roles/" + id + "_token.png";
+  //document.getElementById("info_img").src = "assets/roles/" + id + "_token.png"; // TODO
+  generateSampleToken(id,  document.getElementById("info_img"));
+  // document.getElementById("info_img").innerHTML = createSampleToken(id).innerHTML;
   var roleJSON = tokens_ref[id];
   document.getElementById("info_title_field").innerHTML = roleJSON["name"];
   document.getElementById("info_name_field").innerHTML = data_token.children.namedItem(id + "_name_" + uid).innerHTML;
@@ -959,6 +1047,54 @@ async function infoCall(id, uid)
     spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
   }
 }
+
+function generateSampleToken(id, el) {
+  el.textContent = "";
+
+  var token = document.createElement("img");
+  token.src = "assets/token.png"
+  token.style.width = "100%";
+  token.style.height = "100%";
+  el.appendChild(token);
+
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.src = `assets/icons/${id}.png`;
+  el.appendChild(role);
+
+  var roleName = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  roleName.setAttribute("viewBox", "0 0 150 150");
+  roleName.classList.add("token_role_name");
+  
+  // Curvature
+  var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M 13 75 C 13 150, 138 150, 138 75");
+  path.setAttribute("id", "curve");
+  path.setAttribute("fill", "transparent");
+  roleName.appendChild(path);
+  
+  // Text
+  var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("width", "150");
+  text.setAttribute("x", "62.5%");
+  text.setAttribute("y", "130");
+  text.setAttribute("text-anchor", "middle");
+  
+  // Create the textPath element
+  var textPath = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+  textPath.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#curve");
+  textPath.setAttribute("style", "fill: black; font-family: Dumbledor; font-size: 24px;");
+  textPath.classList.add("js--character--name");
+  textPath.textContent = tokens_ref[id]["name"]; 
+  
+  text.appendChild(textPath);
+  roleName.appendChild(text);
+  el.appendChild(roleName);
+
+  return el;
+}
+
 function spawnReminderGhost(x, y, imgUrl, longId)
 {
   var time = new Date();
@@ -977,6 +1113,7 @@ function spawnReminderGhost(x, y, imgUrl, longId)
   document.getElementById("info_token_dragbox").prepend(div);
   dragInit();
 }
+
 function spawnReminder(id, uid, left, top)
 {
   var div = document.createElement("div");
@@ -995,16 +1132,19 @@ function spawnReminder(id, uid, left, top)
   dragInit();
   if (!loading) { save_game_state(); }
 }
+
 function spawnFabledReminder(id)
 {
   var time = new Date();
   var uid = time.getTime();
   spawnReminder(id, uid, 'calc(50% - 40px)', 'calc(50% - 40px)')
 }
+
 function hideInfo()
 {
   document.getElementById("info_box").style.display = "none";
 }
+
 function nameIn(id, uid)
 {
   let value = document.getElementById("info_name_input").value;
@@ -1012,6 +1152,7 @@ function nameIn(id, uid)
   document.getElementById("info_name_field").innerHTML = value;
   document.getElementById("info_img_name").innerHTML = value;
 }
+
 function cycle_token_visibility_toggle(id, uid)
 {
   switch (document.getElementById(id + "_token_" + uid).getAttribute("visibility"))
@@ -1034,6 +1175,7 @@ function cycle_token_visibility_toggle(id, uid)
   populate_night_order();
   if (!loading) { save_game_state(); }
 }
+
 function expand_info_tab(tab)
 {
   document.getElementById("info_desc").setAttribute("focus", "false");
@@ -1058,12 +1200,14 @@ function expand_info_tab(tab)
       break;
   }
 }
+
 function info_death_cycle_trigger(id, uid)
 {
   deathCycle(id, uid);
   update_info_death_cycle(id, uid);
 
 }
+
 function update_info_death_cycle(id, uid)
 {
   switch (document.getElementById(id + "_token_" + uid).getAttribute("viability"))
@@ -1079,6 +1223,7 @@ function update_info_death_cycle(id, uid)
       break;
   }
 }
+
 function load_playerinfo_shroud(typeId)
 {
   function mapped_specials(typeId)
@@ -1150,6 +1295,7 @@ function load_playerinfo_shroud(typeId)
   mapped_specials(typeId);
   document.getElementById("playerinfo_body").style.top = "calc(50% - " + document.getElementById("playerinfo_body").clientHeight / 2 + "px)";
 }
+
 function trigger_playerinfo_character_select(id)
 {
   var town = document.getElementById("mutate_menu_TOWN").children;
@@ -1179,10 +1325,22 @@ function trigger_playerinfo_character_select(id)
   }
   document.getElementById("mutate_menu_main").style.display = "inherit";
 }
+
 function select_playerinfo_character(id, selection)
 {
-  document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')"
+  const div = document.createElement("div");
+  generateSampleToken(selection, div);
+
+  div.style.position = "absolute";
+  div.style.left = 25;
+  div.style.width = 300;
+  div.style.height = 300;
+  
+  document.getElementById("playerinfo_character_" + id).innerText = "";
+  document.getElementById("playerinfo_character_" + id).appendChild(div);
+  //document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
 }
+
 function close_playerinfo_shroud()
 {
   document.getElementById("playerinfo_shoud").style.display = "none";
@@ -1209,8 +1367,9 @@ function dragInit()
 }
 function dragStart(e)
 {
-  if (document.getElementById("move_toggle").style.backgroundColor != "green" && e.target.classList.contains("role_token")) { return }
-  var pos = getComputedStyle(e.target)
+  if (document.getElementById("move_toggle").style.backgroundColor != "green" && isRoleToken(e.target)) { return }
+  const token = getActualDragged(e.target);
+  var pos = getComputedStyle(token)
   if (e.type === "touchstart")
   {
     xOffset = e.touches[0].clientX - pos.getPropertyValue('left').match(/\d+/)[0];
@@ -1220,11 +1379,10 @@ function dragStart(e)
     xOffset = e.clientX - pos.getPropertyValue('left').match(/\d+/)[0];
     yOffset = e.clientY - pos.getPropertyValue('top').match(/\d+/)[0];
   }
-  if (e.target.classList.contains("drag"))
+  if (token.classList.contains("drag"))
   {
     active = true;
   }
-
 }
 function dragEnd(e)
 {
@@ -1262,6 +1420,12 @@ function drag(e)
   {
 
     e.preventDefault();
+    let moved = e.target;
+
+    while (moved.localName != "html" && moved.localName != "div") {
+      moved = moved.parentElement;
+    }
+    //if (!moved.classList.contains("role_token")) return;
 
     if (e.type === "touchmove")
     {
@@ -1273,13 +1437,30 @@ function drag(e)
       currentY = e.clientY - yOffset;
     }
 
-    setTranslate(currentX, currentY, e.target);
+    setTranslate(currentX, currentY, moved);
   }
 }
 function setTranslate(xPos, yPos, el)
 {
   el.style.left = xPos + "px"
   el.style.top = yPos + "px"
+}
+
+function getActualDragged(el) {
+  let root = el;
+  while (root.localName != "body") {
+    if (root.classList.contains("role_token")) return root;
+    root = root.parentElement;
+  }
+  return el;
+}
+
+function isRoleToken(el) {
+  while (el.localName != "body") {
+    if (el.classList.contains("role_token")) return true;
+    el = el.parentElement;
+  }
+  return false;
 }
 
 
