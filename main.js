@@ -1027,16 +1027,25 @@ async function infoCall(id, uid)
 
   update_info_death_cycle(id, uid);
 
+  function capitalize(x) {
+    return x[0].toUpperCase() + x.substring(1);
+  }
+
   const landing = document.getElementById("info_token_landing");
   for (var i = 0; i < roleJSON["tokens"].length; i++)
   {
-    const div = generateReminderBacking(roleJSON["tokens"][i], uid);
+    const words = roleJSON["tokens"][i].split("_").slice(1);
+    const reminder = words.map(x => capitalize(x)).join(" ");
+
+    const div = generateReminderBacking(id, reminder, uid);
     // div.setAttribute("reminderId", i);
     document.getElementById("info_token_landing").appendChild(div);
 
     const x = div.getBoundingClientRect().x - landing.getBoundingClientRect().x;
     const y = div.getBoundingClientRect().y - landing.getBoundingClientRect().y;
-    spawnReminderGhost(x, y, roleJSON["tokens"][i], div.id)
+    // x, y, roleName, reminder info, id
+    spawnReminderGhost(x, y, id, reminder, div.id)
+    // tokenWords.slice(1).map(x => capitalize(x)).join(" ");
 
     // var div = document.createElement("div");
     // div.className = "info_tokens"; // TODO: Punt this crap!
@@ -1050,7 +1059,6 @@ async function infoCall(id, uid)
   // {
   //   let x = tokens[i].getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
   //   let y = tokens[i].getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-  //   console.log("First trigger");
   //   spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
   // }
 }
@@ -1102,16 +1110,11 @@ function generateSampleToken(id, el) {
   return el;
 }
 
-function generateReminderBacking(tokenId, uid) {
-  function capitalize(x) {
-    return x[0].toUpperCase() + x.substring(1);
-  }
-
-  tokenWords = tokenId.split("_");
+function generateReminderBacking(roleName, reminder, uid) {
 
   var div = document.createElement("div");
   div.className = "info_tokens"; // TODO: Punt this crap!
-  div.id = "info_" + tokenId + "_" + uid;
+  div.id = "info_" + reminder + "_" + uid;
   
   var base = document.createElement("img");
   base.src = "assets/reminder.png"
@@ -1124,12 +1127,11 @@ function generateReminderBacking(tokenId, uid) {
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  console.log(tokenId)
-  role.src = `assets/icons/${tokenWords[0]}.png`; // TODO: Get ID from callers
+  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
   div.appendChild(role);
 
   var text = document.createElement("p");
-  text.innerText = tokenWords.slice(1).map(x => capitalize(x)).join(" ");
+  text.innerText = reminder;
   text.classList = "reminder_ghost_text";
   div.appendChild(text);
   
@@ -1137,25 +1139,20 @@ function generateReminderBacking(tokenId, uid) {
   // document.getElementById("info_token_landing").appendChild(div);
 }
 
-function spawnReminderGhost(x, y, tokenId, longId)
+function spawnReminderGhost(left, top, roleName, reminder, longId)
 {
   // Create a reminder that we put in the info box. 
   // This is slightly larger than the actual reminder, and appears larger until we put it onto the page.
   var time = new Date();
   var uid = time.getTime();
 
-  function capitalize(x) {
-    return x[0].toUpperCase() + x.substring(1);
-  }
-
-  tokenWords = tokenId.split("_");
-
   var div = document.createElement("div");
   div.classList = "info_tokens_drag drag";
-  div.style = `left: ${x}; top: ${y}; border-radius: 100%; pointer-events: all; width: 100px; height 100px;`
+  div.style = `left: ${left}; top: ${top}; border-radius: 100%; pointer-events: all; width: 100px; height 100px;`
   div.id = longId + "_" + uid;
   div.setAttribute("ghost", "true");
   div.setAttribute("token_from", "info");
+  div.setAttribute("role", roleName);
 
   var base = document.createElement("img");
   base.src = "assets/reminder.png"
@@ -1168,11 +1165,11 @@ function spawnReminderGhost(x, y, tokenId, longId)
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${tokenWords[0]}.png`; // TODO: Get ID from callers
+  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
   div.appendChild(role);
 
   var text = document.createElement("p");
-  text.innerText = tokenWords.slice(1).map(x => capitalize(x)).join(" ");
+  text.innerText = reminder;
   text.classList = "reminder_ghost_text";
   div.appendChild(text);
 
@@ -1181,20 +1178,48 @@ function spawnReminderGhost(x, y, tokenId, longId)
   dragInit();
 }
 
-function spawnReminder(id, uid, left, top)
+function spawnReminder(roleName, reminder, uid, left, top)
 {
+
   var div = document.createElement("div");
   div.classList = "reminder drag";
-  div.style = "background-image: url('assets/reminders/" + id + ".png'); left: " + left + "; top: " + top;
-  div.id = id + "_" + uid;
-  div.setAttribute("role", id);
+  div.style = `left: ${left}; top: ${top}; border-radius: 100%; pointer-events: all;`
+  div.id = roleName + "_" + uid;
   div.setAttribute("uid", uid);
-  var img = document.createElement("img");
-  img.style = "width: 80%; height: 80%; margin: 10%; pointer-events: none; display: none; border-radius: 100%; user-select: none";
-  img.src = "assets/delete.png";
-  img.id = id + "_" + uid + "_img";
-  div.appendChild(img);
   div.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + div.id + "')");
+
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  // console.log(roleName)
+  // console.log(reminder)
+  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = reminder;
+  text.classList = "reminder_text";
+  div.appendChild(text);
+  
+  var trash = document.createElement("img");
+  trash.classList = "reminder_delete"
+  trash.src = "assets/delete.png";
+  trash.id = roleName + "_" + uid + "_img";
+  div.appendChild(trash);
+
+
+  //var div = document.createElement("div");
+  //div.classList = "reminder drag";
+  //div.style = "background-image: url('assets/reminders/" + role + ".png'); left: " + left + "; top: " + top;
+  //div.setAttribute("role", roleName);
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
   if (!loading) { save_game_state(); }
@@ -1452,35 +1477,43 @@ function dragStart(e)
 }
 function dragEnd(e)
 {
+  const el = e.target;
   // The good, evil, and generic reminder tokens.
-  if (e.target.getAttribute("disposable-reminder"))
+  if (el.getAttribute("disposable-reminder"))
   {
-    if (e.target.getAttribute("stacked") == "true")
+    if (el.getAttribute("stacked") == "true")
     {
-      dragPipLayerSpawnDefault(e.target.getAttribute("alignment"));
+      dragPipLayerSpawnDefault(el.getAttribute("alignment"));
     }
-    e.target.setAttribute("stacked", false);
-    e.target.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + e.target.id + "')");
-    e.target.style.cursor = "pointer";
+    el.setAttribute("stacked", false);
+    el.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + el.id + "')");
+    el.style.cursor = "pointer";
   }
   
   // If a new reminder token is to be instantiated.
-  if (e.target.getAttribute("ghost") == "true")
+  if (el.getAttribute("ghost") == "true")
   {
+    const role = el.getAttribute("role");
+    const reminder = el.children[2].innerText;
     spawnReminder(
-        e.target.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), 
-        e.target.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), 
-        e.target.getBoundingClientRect().left + 10, e.target.getBoundingClientRect().top + 10
+        role,
+        reminder,
+        //el.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), 
+        el.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), 
+        el.getBoundingClientRect().left + 12.5, e.target.getBoundingClientRect().top + 12.5
     );
     if (e.target.getAttribute("token_from") == "info")
     {
-      let x = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
-      let y = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-      console.log(e.target);
-      const img = e.target.children[1].src;
-      console.log(img.split("/"));
+      let x = document.getElementById(el.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
+      let y = document.getElementById(el.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
       // SCUFFED AF
-      spawnReminderGhost(x, y, img.split("/")[5].split(".")[0], e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1));
+      spawnReminderGhost(
+          x, 
+          y, 
+          role,
+          reminder,
+          e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)
+      );
     }// else if (e.target.getAttribute("token_from") == "night_order") {
     //   let x = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
     //   let y = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
@@ -1606,7 +1639,6 @@ async function populate_night_order()
   for (i = 0; i < tokens.length; i++)
   {
     var id = tokens[i].getAttribute("role");
-    console.log(id)
     if (tokens[i].getAttribute("viability") == "alive" && tokens[i].getAttribute("visibility") != "bluff") { alive.add(id); }
     if (tokens[i].getAttribute("visibility") != "bluff") { inPlay.add(id); }
   }

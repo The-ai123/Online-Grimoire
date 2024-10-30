@@ -49,13 +49,45 @@ svg {pointer-events: none;}
     position: absolute; 
     background-repeat: no-repeat; 
     background-size: cover; 
-    left: 0px; 
-    border-radius: 100%; 
     pointer-events: all;
     cursor: move;
+    
+    object-fit: contain;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center; /* Center text */
+    overflow: hidden; /* Prevent overflow */
+    box-sizing: border-box; /* Include padding in width/height */
 }
 #body_actual[night="true"] .reminder {
     display: none;
+}
+.reminder_text {
+    font-family: Dumbledor;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    line-height: 50%;
+    color: black;
+    pointer-events: none;
+    width: 80%;
+    /* Bounding box check */
+    /* background-color: rgba(255, 0, 0, 0.2);
+    border: 1px solid red; */
+}
+.reminder_delete {
+    position: absolute;
+    width: 80%; 
+    height: 80%; 
+    margin: 10%; 
+    pointer-events: none; 
+    display: none; 
+    border-radius: 100%; 
+    user-select: none;
+    opacity: 75%;
 }
 .token_text {
     position: absolute;
@@ -112,8 +144,8 @@ svg {pointer-events: none;}
     /* Center horizontally with this one weird trick! */
     left: 50%;
     transform: translate(-50%, 0);
-    width: 90%;
-    height: 90%;
+    width: 80%;
+    height: 80%;
     object-fit: contain;
 }
 #info_visibility_shade {position: absolute; top: 0px; left: 0px; height: 250px; width: 250px; pointer-events: none; background-color: black; opacity: 0.5; border-radius: 100%; display: none; transition: width ease-in-out 0.5s, height ease-in-out 0.5s, left ease-in-out 0.5s;}
@@ -197,9 +229,6 @@ svg {pointer-events: none;}
 
     position: relative;
     top: 0;
-    /* Center horizontally with this one weird trick! */
-    /* left: 50%;
-    transform: translate(-50%, 0); */
     object-fit: contain;
 
     height: 100px; 
