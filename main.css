@@ -107,7 +107,6 @@ svg {pointer-events: none;}
 }
 #info_desc:not([focus="true"]) #info_img_name {
     bottom: 20px;
-    
 }
 
 #info_title_field {height: 100px; position: absolute; top: 0px; left: 0px; color:rgb(211, 211, 211); font-size: 50pt; font-family: PiratesBay;}
