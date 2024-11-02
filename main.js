@@ -104,6 +104,7 @@ function generate_game_state_json()
   {
     state.reminders[i] = new Object();
     state.reminders[i].id = reminders[i].getAttribute("role");
+    state.reminders[i].text = reminders[i].children[2].innerText;
     state.reminders[i].uid = reminders[i].getAttribute("uid");
     state.reminders[i].left = reminders[i].style.left;
     state.reminders[i].top = reminders[i].style.top;
@@ -144,9 +145,9 @@ async function load_game_state_json(state)
   {
     spawnToken(state.players[i].role, state.players[i].uid, state.players[i].visibility, state.players[i].cat, state.players[i].hide_face, state.players[i].viability, state.players[i].left, state.players[i].top, state.players[i].name)
   }
-  for (let i = 0; i < state.reminders.length; i++)
+  for (const reminder of state.reminders) 
   {
-    spawnReminder(state.reminders[i].id, state.reminders[i].uid, state.reminders[i].left, state.reminders[i].top)
+    spawnReminder(reminder.id, reminder.text, reminder.uid, reminder.left, reminder.top);
   }
   for (let i = 0; i < state.pips.length; i++)
   {
@@ -1165,7 +1166,7 @@ function spawnReminderGhost(left, top, roleName, reminder, longId)
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
+  role.src = `assets/icons/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1186,6 +1187,7 @@ function spawnReminder(roleName, reminder, uid, left, top)
   div.style = `left: ${left}; top: ${top}; border-radius: 100%; pointer-events: all;`
   div.id = roleName + "_" + uid;
   div.setAttribute("uid", uid);
+  div.setAttribute("role", roleName);
   div.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + div.id + "')");
 
   var base = document.createElement("img");
@@ -1201,7 +1203,7 @@ function spawnReminder(roleName, reminder, uid, left, top)
   role.style.pointerEvents = "none";
   // console.log(roleName)
   // console.log(reminder)
-  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
+  role.src = `assets/icons/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1500,7 +1502,8 @@ function dragEnd(e)
         reminder,
         //el.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), 
         el.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), 
-        el.getBoundingClientRect().left + 12.5, e.target.getBoundingClientRect().top + 12.5
+        el.getBoundingClientRect().left + 12.5, 
+        e.target.getBoundingClientRect().top + 12.5
     );
     if (e.target.getAttribute("token_from") == "info")
     {
