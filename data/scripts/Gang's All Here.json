@@ -8,10 +8,13 @@
 		"id": "acrobat"
 	},
 	{
+		"id": "alchemist"
+	},
+	{
 		"id": "alhadikhia"
 	},
 	{
-		"id": "alchemist"
+		"id": "alsaahir"
 	},
 	{
 		"id": "amnesiac"
@@ -51,6 +54,9 @@
 	},
 	{
 		"id": "bishop"
+	},
+	{
+		"id": "boffin"
 	},
 	{
 		"id": "bonecollector"
@@ -257,6 +263,9 @@
 		"id": "lleech"
 	},
 	{
+		"id": "lordoftyphon"
+	},
+	{
 		"id": "lunatic"
 	},
 	{
@@ -303,6 +312,9 @@
 	},
 	{
 		"id": "noble"
+	},
+	{
+		"id": "ogre"
 	},
 	{
 		"id": "ojo"
@@ -474,6 +486,9 @@
 	},
 	{
 		"id": "yaggababble"
+	},
+	{
+		"id": "zealot"
 	},
 	{
 		"id": "zombuul"
