@@ -147,6 +147,12 @@ async function load_game_state_json(state)
   }
   for (const reminder of state.reminders) 
   {
+    console.log(reminder);
+    if (!reminder.text) {
+      const idParts = reminder.id.split("_");
+      reminder.id = idParts[0];
+      reminder.text = idParts.slice(1).map(x => x[0].toUpperCase() + x.substring(1)).join(" ");
+    } 
     spawnReminder(reminder.id, reminder.text, reminder.uid, reminder.left, reminder.top);
   }
   for (let i = 0; i < state.pips.length; i++)
@@ -695,7 +701,8 @@ async function script_upload()
     json[0]["id"]
     populate_script(json);
     document.getElementById("script_upload_feedback").setAttribute("used", "upload");
-  } catch {
+  } catch (e) {
+    console.log(e);
     document.getElementById("script_upload_feedback").innerHTML = "Error Processing File";
     document.getElementById("script_upload_feedback").setAttribute("used", "error");
   }
