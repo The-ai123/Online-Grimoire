@@ -1587,6 +1587,117 @@ function gen_fabled_tab(token_JSON, inPlay)
   div.setAttribute("onclick", "javascript:expand_night_order_tab('" + token_JSON.id + "_night_order_tab')");
   div.appendChild(img);
 }
+//generates an html page that can be printed to a pdf from currently loaded script (WIP)
+//this is almost entirely written by chatGPT
+function generateHTMLDocument() {
+  
+
+  // Start the HTML structure
+  let html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${CURRENT_SCRIPT[0].name}</title>
+  <style>
+    body {
+      margin: 10px;
+      font-family: Arial, sans-serif;
+      font-size:x-small;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      padding: 0;
+    }
+    td {
+      vertical-align: top;
+      padding: 3px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<p>Townsfolk<p>
+<table>`;
+
+  // Generate rows from the provided arrays for town
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'TOWN'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+
+html += `
+</table>
+
+<p>Outsiders<p>
+<table>`;
+
+  // Generate rows from the provided arrays for OUTsiders
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'OUT'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+  html += `
+</table>
+
+<p>Minions<p>
+<table>`;
+
+  // Generate rows from the provided arrays for minions
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'MIN'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+  html += `
+</table>
+
+<p>Demons<p>
+<table>`;
+
+  // Generate rows from the provided arrays for Demons
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'DEM'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+
+// Close the HTML structure
+  html += `
+</table>
+</body>
+</html>`;
+
+  return html;
+}
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
 //   var uid = time.getTime();
