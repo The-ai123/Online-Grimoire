@@ -1707,7 +1707,7 @@ function download_current_script()
 {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(CURRENT_SCRIPT)));
-  element.setAttribute('download', CURRENT_SCRIPT[0].name);
+  element.setAttribute('download', CURRENT_SCRIPT[0].name + ".json");
   element.style.display = 'none';
   document.body.appendChild(element);
   element.click();
