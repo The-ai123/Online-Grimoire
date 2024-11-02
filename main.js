@@ -1696,7 +1696,10 @@ html += `
 </body>
 </html>`;
 
-  return html;
+  // Optional: Automatically open the generated HTML in a new window
+  const newWindow = window.open();
+  newWindow.document.write(html);
+  newWindow.document.close();
 }
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
