@@ -731,6 +731,7 @@ async function populate_script(script)
   function options(type, tokenNames)
   {
     var landing = document.getElementById(type)
+    console.log(tokenNames)
     for (i = 0; i < tokenNames.length; i++)
     {
       var tokenJSON = tokenNames[i];
@@ -762,37 +763,34 @@ async function populate_script(script)
     document.getElementById(div).innerHTML = ""
   }
   let scriptTokens = [];
-  count = script.length;
   script.forEach(element =>
   {
     if (element.id.substring(0, 1) != "_")
     {
       try { scriptTokens.push(tokens_ref[element.id]) } catch { }
-      count--;
-    } else { count-- }
-    if (!count)
-    {
-      clear("TOWN")
-      header("Town", "TOWN", "#0033cc")
-      options("TOWN", scriptTokens)
-      clear("OUT")
-      header("Outsiders", "OUT", "#1a53ff")
-      options("OUT", scriptTokens)
-      clear("MIN")
-      header("Minions", "MIN", "#b30000")
-      options("MIN", scriptTokens)
-      clear("DEM")
-      header("Demons", "DEM", "#e60000")
-      options("DEM", scriptTokens)
-      clear("TRAV")
-      header("Travellers", "TRAV", "#6600ff")
-      options("TRAV", scriptTokens)
-      player_count_change();
-      update_role_counts();
-      clear_mutate_menu();
-      populate_mutate_menu(scriptTokens);
     }
   })
+
+  clear("TOWN")
+  header("Town", "TOWN", "#0033cc")
+  options("TOWN", scriptTokens)
+  clear("OUT")
+  header("Outsiders", "OUT", "#1a53ff")
+  options("OUT", scriptTokens)
+  clear("MIN")
+  header("Minions", "MIN", "#b30000")
+  options("MIN", scriptTokens)
+  clear("DEM")
+  header("Demons", "DEM", "#e60000")
+  options("DEM", scriptTokens)
+  clear("TRAV")
+  header("Travellers", "TRAV", "#6600ff")
+  options("TRAV", scriptTokens)
+  player_count_change();
+  update_role_counts();
+  clear_mutate_menu();
+  populate_mutate_menu(scriptTokens);
+  
   if (!loading) { save_game_state(); }
   return Promise.resolve()
 }
@@ -1042,17 +1040,14 @@ async function infoCall(id, uid)
   const landing = document.getElementById("info_token_landing");
   for (var i = 0; i < roleJSON["tokens"].length; i++)
   {
-    const words = roleJSON["tokens"][i].split("_").slice(1);
-    const reminder = words.map(x => capitalize(x)).join(" ");
-
-    const div = generateReminderBacking(id, reminder, uid);
+    const div = generateReminderBacking(id, roleJSON["tokens"][i], uid);
     // div.setAttribute("reminderId", i);
     document.getElementById("info_token_landing").appendChild(div);
 
     const x = div.getBoundingClientRect().x - landing.getBoundingClientRect().x;
     const y = div.getBoundingClientRect().y - landing.getBoundingClientRect().y;
     // x, y, roleName, reminder info, id
-    spawnReminderGhost(x, y, id, reminder, div.id)
+    spawnReminderGhost(x, y, id, roleJSON["tokens"][i], div.id)
     // tokenWords.slice(1).map(x => capitalize(x)).join(" ");
 
     // var div = document.createElement("div");

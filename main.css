@@ -70,7 +70,7 @@ svg {pointer-events: none;}
     top: 50%;
     left: 50%;
     transform: translateX(-50%);
-    line-height: 50%;
+    line-height: 70%;
     color: black;
     pointer-events: none;
     width: 80%;
@@ -250,7 +250,7 @@ svg {pointer-events: none;}
     top: 50%;
     left: 50%;
     transform: translateX(-50%);
-    line-height: 50%;
+    line-height: 70%;
     color: black;
     pointer-events: none;
     width: 80%;
