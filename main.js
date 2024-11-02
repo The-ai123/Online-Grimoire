@@ -147,7 +147,6 @@ async function load_game_state_json(state)
   }
   for (const reminder of state.reminders) 
   {
-    console.log(reminder);
     if (!reminder.text) {
       const idParts = reminder.id.split("_");
       reminder.id = idParts[0];
@@ -702,7 +701,7 @@ async function script_upload()
     populate_script(json);
     document.getElementById("script_upload_feedback").setAttribute("used", "upload");
   } catch (e) {
-    console.log(e);
+    console.error(e);
     document.getElementById("script_upload_feedback").innerHTML = "Error Processing File";
     document.getElementById("script_upload_feedback").setAttribute("used", "error");
   }
@@ -731,7 +730,6 @@ async function populate_script(script)
   function options(type, tokenNames)
   {
     var landing = document.getElementById(type)
-    console.log(tokenNames)
     for (i = 0; i < tokenNames.length; i++)
     {
       var tokenJSON = tokenNames[i];
@@ -1097,7 +1095,7 @@ function generateSampleToken(id, el) {
 function generateReminderBacking(roleName, reminder, uid) {
 
   var div = document.createElement("div");
-  div.className = "info_tokens"; // TODO: Punt this crap!
+  div.className = "info_tokens";
   div.id = "info_" + reminder + "_" + uid;
   
   var base = document.createElement("img");
@@ -1111,7 +1109,7 @@ function generateReminderBacking(roleName, reminder, uid) {
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${roleName}.png`; // TODO: Get ID from callers
+  role.src = `assets/icons/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1183,8 +1181,6 @@ function spawnReminder(roleName, reminder, uid, left, top)
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  // console.log(roleName)
-  // console.log(reminder)
   role.src = `assets/icons/${roleName}.png`;
   div.appendChild(role);
 
@@ -1199,11 +1195,6 @@ function spawnReminder(roleName, reminder, uid, left, top)
   trash.id = roleName + "_" + uid + "_img";
   div.appendChild(trash);
 
-
-  //var div = document.createElement("div");
-  //div.classList = "reminder drag";
-  //div.style = "background-image: url('assets/reminders/" + role + ".png'); left: " + left + "; top: " + top;
-  //div.setAttribute("role", roleName);
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
   if (!loading) { save_game_state(); }
@@ -1846,8 +1837,6 @@ function gen_fabled_tab(token_JSON, inPlay)
     var uid = new Date().getTime()
     var token_perm = generateReminderBacking(token_JSON.id, token, uid)
     token_perm.id = `${token_JSON.id}_${token}`;
-    //token_perm.classList = "night_order_fabled_token_perm"
-    //token_perm.style.backgroundImage = "url('assets/reminders/" + token + ".png')"
     token_perm.setAttribute("onclick", `javascript:spawnFabledReminder("${token_JSON.id}", "${token}")`)
     token_landing.appendChild(token_perm)
   })
