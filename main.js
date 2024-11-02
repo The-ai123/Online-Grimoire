@@ -790,7 +790,7 @@ async function populate_script(script)
   update_role_counts();
   clear_mutate_menu();
   populate_mutate_menu(scriptTokens);
-  
+
   if (!loading) { save_game_state(); }
   return Promise.resolve()
 }
@@ -1033,37 +1033,18 @@ async function infoCall(id, uid)
 
   update_info_death_cycle(id, uid);
 
-  function capitalize(x) {
-    return x[0].toUpperCase() + x.substring(1);
-  }
-
   const landing = document.getElementById("info_token_landing");
   for (var i = 0; i < roleJSON["tokens"].length; i++)
   {
-    const div = generateReminderBacking(id, roleJSON["tokens"][i], uid);
+    const backing = generateReminderBacking(id, roleJSON["tokens"][i], uid);
     // div.setAttribute("reminderId", i);
-    document.getElementById("info_token_landing").appendChild(div);
+    document.getElementById("info_token_landing").appendChild(backing);
 
-    const x = div.getBoundingClientRect().x - landing.getBoundingClientRect().x;
-    const y = div.getBoundingClientRect().y - landing.getBoundingClientRect().y;
+    const x = backing.getBoundingClientRect().x - landing.getBoundingClientRect().x;
+    const y = backing.getBoundingClientRect().y - landing.getBoundingClientRect().y;
     // x, y, roleName, reminder info, id
-    spawnReminderGhost(x, y, id, roleJSON["tokens"][i], div.id)
-    // tokenWords.slice(1).map(x => capitalize(x)).join(" ");
-
-    // var div = document.createElement("div");
-    // div.className = "info_tokens"; // TODO: Punt this crap!
-    // TokenId = roleJSON["tokens"][i]
-    // div.style.backgroundImage = "url('assets/reminders/" + TokenId + ".png')";
-    // div.id = "info_" + roleJSON["tokens"][i] + "_" + uid;
-    // document.getElementById("info_token_landing").appendChild(div);
+    spawnReminderGhost(x, y, id, roleJSON["tokens"][i], backing.id);
   }
-  // var tokens = document.getElementById("info_token_landing").children;
-  // for (i = 0; i < tokens.length; i++)
-  // {
-  //   let x = tokens[i].getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
-  //   let y = tokens[i].getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-  //   spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
-  // }
 }
 
 function generateSampleToken(id, el) {
@@ -1177,7 +1158,6 @@ function spawnReminderGhost(left, top, roleName, reminder, longId)
   div.appendChild(text);
 
   document.getElementById("info_token_dragbox").prepend(div);
-
   dragInit();
 }
 
@@ -1229,11 +1209,11 @@ function spawnReminder(roleName, reminder, uid, left, top)
   if (!loading) { save_game_state(); }
 }
 
-function spawnFabledReminder(id)
+function spawnFabledReminder(roleName, reminder)
 {
   var time = new Date();
   var uid = time.getTime();
-  spawnReminder(id, uid, 'calc(50% - 40px)', 'calc(50% - 40px)')
+  spawnReminder(roleName, reminder, uid, 'calc(50% - 40px)', 'calc(50% - 40px)')
 }
 
 function hideInfo()
@@ -1863,11 +1843,12 @@ function gen_fabled_tab(token_JSON, inPlay)
   token_landing.id = "night_order_" + token_JSON.id;
   token_JSON["tokens"].forEach((token) =>
   {
-    var token_perm = document.createElement("div");
-    token_perm.id = token;
-    token_perm.classList = "night_order_fabled_token_perm"
-    token_perm.style.backgroundImage = "url('assets/reminders/" + token + ".png')"
-    token_perm.setAttribute("onclick", "javascript:spawnFabledReminder('" + token + "')")
+    var uid = new Date().getTime()
+    var token_perm = generateReminderBacking(token_JSON.id, token, uid)
+    token_perm.id = `${token_JSON.id}_${token}`;
+    //token_perm.classList = "night_order_fabled_token_perm"
+    //token_perm.style.backgroundImage = "url('assets/reminders/" + token + ".png')"
+    token_perm.setAttribute("onclick", `javascript:spawnFabledReminder("${token_JSON.id}", "${token}")`)
     token_landing.appendChild(token_perm)
   })
   div.appendChild(token_landing);
