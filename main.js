@@ -104,6 +104,7 @@ function generate_game_state_json()
   {
     state.reminders[i] = new Object();
     state.reminders[i].id = reminders[i].getAttribute("role");
+    state.reminders[i].text = reminders[i].children[2].innerText;
     state.reminders[i].uid = reminders[i].getAttribute("uid");
     state.reminders[i].left = reminders[i].style.left;
     state.reminders[i].top = reminders[i].style.top;
@@ -144,9 +145,14 @@ async function load_game_state_json(state)
   {
     spawnToken(state.players[i].role, state.players[i].uid, state.players[i].visibility, state.players[i].cat, state.players[i].hide_face, state.players[i].viability, state.players[i].left, state.players[i].top, state.players[i].name)
   }
-  for (let i = 0; i < state.reminders.length; i++)
+  for (const reminder of state.reminders) 
   {
-    spawnReminder(state.reminders[i].id, state.reminders[i].uid, state.reminders[i].left, state.reminders[i].top)
+    if (!reminder.text) {
+      const idParts = reminder.id.split("_");
+      reminder.id = idParts[0];
+      reminder.text = idParts.slice(1).map(x => x[0].toUpperCase() + x.substring(1)).join(" ");
+    } 
+    spawnReminder(reminder.id, reminder.text, reminder.uid, reminder.left, reminder.top);
   }
   for (let i = 0; i < state.pips.length; i++)
   {
@@ -337,7 +343,6 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   div.setAttribute("onclick", "javascript:infoCall('" + id + "', " + uid + ")");
   div.classList = "role_token drag";
   div.style = `background-image: url('assets/token.png'); left:${left}; top:${top}`
-  // div.style = "background-image: url('assets/roles/" + id + "_token.png'); left: " + left + "; top: " + top;
   div.id = id + "_token_" + uid;
   div.setAttribute("role", id);
   div.setAttribute("viability", viability);
@@ -515,8 +520,7 @@ function mutate_token(idFrom, uid, idTo)
 
   subject.setAttribute("show_face", !new_json["hide_face"]);
   subject.setAttribute("role", new_json["id"]);
-  subject.style.backgroundImage = "url('assets/token.png')"; // TODO
-  // subject.style.backgroundImage = "url('assets/roles/" + idTo + "_token.png')"; // TODO
+  subject.style.backgroundImage = "url('assets/token.png')";
   subject.setAttribute("onclick", "javascript:infoCall('" + idTo + "', " + uid + ")");
   subject.id = idTo + "_token_" + uid;
 
@@ -576,7 +580,6 @@ function populate_mutate_menu(tokens)
     div.id = "mutate_menu_" + element["id"];
     generateSampleToken(element["id"], div);
     div.classList = "background_image mutate_menu_token";
-    // div.style.backgroundImage = "url(assets/roles/" + element["id"] + "_token.png"; // TODO
     if (element["class"] != "FAB")
     {
       document.getElementById("mutate_menu_" + element["class"]).appendChild(div);
@@ -697,7 +700,8 @@ async function script_upload()
     json[0]["id"]
     populate_script(json);
     document.getElementById("script_upload_feedback").setAttribute("used", "upload");
-  } catch {
+  } catch (e) {
+    console.error(e);
     document.getElementById("script_upload_feedback").innerHTML = "Error Processing File";
     document.getElementById("script_upload_feedback").setAttribute("used", "error");
   }
@@ -757,37 +761,34 @@ async function populate_script(script)
     document.getElementById(div).innerHTML = ""
   }
   let scriptTokens = [];
-  count = script.length;
   script.forEach(element =>
   {
     if (element.id.substring(0, 1) != "_")
     {
       try { scriptTokens.push(tokens_ref[element.id]) } catch { }
-      count--;
-    } else { count-- }
-    if (!count)
-    {
-      clear("TOWN")
-      header("Town", "TOWN", "#0033cc")
-      options("TOWN", scriptTokens)
-      clear("OUT")
-      header("Outsiders", "OUT", "#1a53ff")
-      options("OUT", scriptTokens)
-      clear("MIN")
-      header("Minions", "MIN", "#b30000")
-      options("MIN", scriptTokens)
-      clear("DEM")
-      header("Demons", "DEM", "#e60000")
-      options("DEM", scriptTokens)
-      clear("TRAV")
-      header("Travellers", "TRAV", "#6600ff")
-      options("TRAV", scriptTokens)
-      player_count_change();
-      update_role_counts();
-      clear_mutate_menu();
-      populate_mutate_menu(scriptTokens);
     }
   })
+
+  clear("TOWN")
+  header("Town", "TOWN", "#0033cc")
+  options("TOWN", scriptTokens)
+  clear("OUT")
+  header("Outsiders", "OUT", "#1a53ff")
+  options("OUT", scriptTokens)
+  clear("MIN")
+  header("Minions", "MIN", "#b30000")
+  options("MIN", scriptTokens)
+  clear("DEM")
+  header("Demons", "DEM", "#e60000")
+  options("DEM", scriptTokens)
+  clear("TRAV")
+  header("Travellers", "TRAV", "#6600ff")
+  options("TRAV", scriptTokens)
+  player_count_change();
+  update_role_counts();
+  clear_mutate_menu();
+  populate_mutate_menu(scriptTokens);
+
   if (!loading) { save_game_state(); }
   return Promise.resolve()
 }
@@ -1010,9 +1011,7 @@ async function infoCall(id, uid)
 {
   close_menu();
   let data_token = document.getElementById(id + "_token_" + uid);
-  //document.getElementById("info_img").src = "assets/roles/" + id + "_token.png"; // TODO
   generateSampleToken(id,  document.getElementById("info_img"));
-  // document.getElementById("info_img").innerHTML = createSampleToken(id).innerHTML;
   var roleJSON = tokens_ref[id];
   document.getElementById("info_title_field").innerHTML = roleJSON["name"];
   document.getElementById("info_name_field").innerHTML = data_token.children.namedItem(id + "_name_" + uid).innerHTML;
@@ -1020,18 +1019,8 @@ async function infoCall(id, uid)
   document.getElementById("info_desc_field").innerHTML = roleJSON["description"];
   document.getElementById("info_list").setAttribute("current_player", id);
   document.getElementById("info_token_landing").innerHTML = "";
-  for (var i = 0; i < roleJSON["tokens"].length; i++)
-  {
-    var div = document.createElement("div");
-    div.className = "info_tokens";
-    TokenId = roleJSON["tokens"][i]
-    div.style.backgroundImage = "url('assets/reminders/" + TokenId + ".png')";
-    div.id = "info_" + roleJSON["tokens"][i] + "_" + uid;
-    document.getElementById("info_token_landing").appendChild(div);
-  }
   document.getElementById("info_remove_player").setAttribute("onclick", "javascript:remove_token('" + id + "', '" + uid + "')");
   document.getElementById("info_kill_cycle").setAttribute("onclick", "javascript:info_death_cycle_trigger('" + id + "', '" + uid + "')");
-  update_info_death_cycle(id, uid);
   document.getElementById("info_visibility_toggle").setAttribute("onclick", "javascript:cycle_token_visibility_toggle('" + id + "', '" + uid + "')");
   document.getElementById("info_edit_role").setAttribute("onclick", "javascript:mutate_menu('" + id + "', '" + uid + "')");
   document.getElementById("info_box").setAttribute("hidden", data_token.getAttribute("visibility"));
@@ -1039,12 +1028,20 @@ async function infoCall(id, uid)
   document.getElementById("info_name_input").setAttribute("onchange", "javascript:nameIn('" + id + "', " + uid + ")");
   document.getElementById("info_box").style.display = "inherit";
   document.getElementById("info_token_dragbox").innerHTML = "";
-  var tokens = document.getElementById("info_token_landing").children;
-  for (i = 0; i < tokens.length; i++)
+
+  update_info_death_cycle(id, uid);
+
+  const landing = document.getElementById("info_token_landing");
+  for (var i = 0; i < roleJSON["tokens"].length; i++)
   {
-    let x = tokens[i].getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
-    let y = tokens[i].getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-    spawnReminderGhost(x, y, tokens[i].style.backgroundImage, tokens[i].id)
+    const backing = generateReminderBacking(id, roleJSON["tokens"][i], uid);
+    // div.setAttribute("reminderId", i);
+    document.getElementById("info_token_landing").appendChild(backing);
+
+    const x = backing.getBoundingClientRect().x - landing.getBoundingClientRect().x;
+    const y = backing.getBoundingClientRect().y - landing.getBoundingClientRect().y;
+    // x, y, roleName, reminder info, id
+    spawnReminderGhost(x, y, id, roleJSON["tokens"][i], backing.id);
   }
 }
 
@@ -1095,49 +1092,119 @@ function generateSampleToken(id, el) {
   return el;
 }
 
-function spawnReminderGhost(x, y, imgUrl, longId)
+function generateReminderBacking(roleName, reminder, uid) {
+
+  var div = document.createElement("div");
+  div.className = "info_tokens";
+  div.id = "info_" + reminder + "_" + uid;
+  
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  role.src = `assets/icons/${roleName}.png`;
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = reminder;
+  text.classList = "reminder_ghost_text";
+  div.appendChild(text);
+  
+  return div;
+  // document.getElementById("info_token_landing").appendChild(div);
+}
+
+function spawnReminderGhost(left, top, roleName, reminder, longId)
 {
+  // Create a reminder that we put in the info box. 
+  // This is slightly larger than the actual reminder, and appears larger until we put it onto the page.
   var time = new Date();
   var uid = time.getTime();
+
   var div = document.createElement("div");
   div.classList = "info_tokens_drag drag";
-  div.style = "background-image: " + imgUrl + "; left: " + x + "; top: " + y + "; border-radius: 100%; pointer-events: all; width: 100px; height 100px;";
+  div.style = `left: ${left}; top: ${top}; border-radius: 100%; pointer-events: all; width: 100px; height 100px;`
   div.id = longId + "_" + uid;
   div.setAttribute("ghost", "true");
   div.setAttribute("token_from", "info");
-  var img = document.createElement("img");
-  img.style = "width: 80%; height: 80%; margin: 10%; pointer-events: none; display: none; border-radius: 100%; user-select: none";
-  img.src = "assets/delete.png";
-  img.id = longId + "_" + uid + "_img";
-  div.appendChild(img);
+  div.setAttribute("role", roleName);
+
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  role.src = `assets/icons/${roleName}.png`;
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = reminder;
+  text.classList = "reminder_ghost_text";
+  div.appendChild(text);
+
   document.getElementById("info_token_dragbox").prepend(div);
   dragInit();
 }
 
-function spawnReminder(id, uid, left, top)
+function spawnReminder(roleName, reminder, uid, left, top)
 {
+
   var div = document.createElement("div");
   div.classList = "reminder drag";
-  div.style = "background-image: url('assets/reminders/" + id + ".png'); left: " + left + "; top: " + top;
-  div.id = id + "_" + uid;
-  div.setAttribute("role", id);
+  div.style = `left: ${left}; top: ${top}; border-radius: 100%; pointer-events: all;`
+  div.id = roleName + "_" + uid;
   div.setAttribute("uid", uid);
-  var img = document.createElement("img");
-  img.style = "width: 80%; height: 80%; margin: 10%; pointer-events: none; display: none; border-radius: 100%; user-select: none";
-  img.src = "assets/delete.png";
-  img.id = id + "_" + uid + "_img";
-  div.appendChild(img);
+  div.setAttribute("role", roleName);
   div.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + div.id + "')");
+
+  var base = document.createElement("img");
+  base.src = "assets/reminder.png"
+  base.style.width = "100%";
+  base.style.height = "100%";
+  base.style.pointerEvents = "none";
+  div.appendChild(base);
+  
+  var role = document.createElement("img");
+  role.id = "info_img_role";
+  role.style.position = "absolute";
+  role.style.pointerEvents = "none";
+  role.src = `assets/icons/${roleName}.png`;
+  div.appendChild(role);
+
+  var text = document.createElement("p");
+  text.innerText = reminder;
+  text.classList = "reminder_text";
+  div.appendChild(text);
+  
+  var trash = document.createElement("img");
+  trash.classList = "reminder_delete"
+  trash.src = "assets/delete.png";
+  trash.id = roleName + "_" + uid + "_img";
+  div.appendChild(trash);
+
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
   if (!loading) { save_game_state(); }
 }
 
-function spawnFabledReminder(id)
+function spawnFabledReminder(roleName, reminder)
 {
   var time = new Date();
   var uid = time.getTime();
-  spawnReminder(id, uid, 'calc(50% - 40px)', 'calc(50% - 40px)')
+  spawnReminder(roleName, reminder, uid, 'calc(50% - 40px)', 'calc(50% - 40px)')
 }
 
 function hideInfo()
@@ -1335,10 +1402,9 @@ function select_playerinfo_character(id, selection)
   div.style.left = 25;
   div.style.width = 300;
   div.style.height = 300;
-  
+
   document.getElementById("playerinfo_character_" + id).innerText = "";
   document.getElementById("playerinfo_character_" + id).appendChild(div);
-  //document.getElementById("playerinfo_character_" + id).style.backgroundImage = "url('assets/roles/" + selection + "_token.png')" // TODO
 }
 
 function close_playerinfo_shroud()
@@ -1386,24 +1452,44 @@ function dragStart(e)
 }
 function dragEnd(e)
 {
-  if (e.target.getAttribute("disposable-reminder"))
+  const el = e.target;
+  // The good, evil, and generic reminder tokens.
+  if (el.getAttribute("disposable-reminder"))
   {
-    if (e.target.getAttribute("stacked") == "true")
+    if (el.getAttribute("stacked") == "true")
     {
-      dragPipLayerSpawnDefault(e.target.getAttribute("alignment"));
+      dragPipLayerSpawnDefault(el.getAttribute("alignment"));
     }
-    e.target.setAttribute("stacked", false);
-    e.target.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + e.target.id + "')");
-    e.target.style.cursor = "pointer";
+    el.setAttribute("stacked", false);
+    el.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + el.id + "')");
+    el.style.cursor = "pointer";
   }
-  if (e.target.getAttribute("ghost") == "true")
+  
+  // If a new reminder token is to be instantiated.
+  if (el.getAttribute("ghost") == "true")
   {
-    spawnReminder(e.target.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), e.target.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), e.target.getBoundingClientRect().left + 10, e.target.getBoundingClientRect().top + 10);
+    const role = el.getAttribute("role");
+    const reminder = el.children[2].innerText;
+    spawnReminder(
+        role,
+        reminder,
+        //el.id.substring(5, e.target.id.length - (2 * UID_LENGTH) - 2), 
+        el.id.substring(e.target.id.length - (2 * UID_LENGTH) - 1, e.target.id.length), 
+        el.getBoundingClientRect().left + 12.5, 
+        e.target.getBoundingClientRect().top + 12.5
+    );
     if (e.target.getAttribute("token_from") == "info")
     {
-      let x = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
-      let y = document.getElementById(e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
-      spawnReminderGhost(x, y, e.target.style.backgroundImage, e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1));
+      let x = document.getElementById(el.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().x - document.getElementById("info_token_landing").getBoundingClientRect().x;
+      let y = document.getElementById(el.id.substring(0, e.target.id.length - UID_LENGTH - 1)).getBoundingClientRect().y - document.getElementById("info_token_landing").getBoundingClientRect().y;
+      // SCUFFED AF
+      spawnReminderGhost(
+          x, 
+          y, 
+          role,
+          reminder,
+          e.target.id.substring(0, e.target.id.length - UID_LENGTH - 1)
+      );
     }// else if (e.target.getAttribute("token_from") == "night_order") {
     //   let x = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
     //   let y = document.getElementById("night_order_" + e.target.id.substring(0, e.target.id.length-UID_LENGTH-1))
@@ -1529,7 +1615,6 @@ async function populate_night_order()
   for (i = 0; i < tokens.length; i++)
   {
     var id = tokens[i].getAttribute("role");
-    console.log(id)
     if (tokens[i].getAttribute("viability") == "alive" && tokens[i].getAttribute("visibility") != "bluff") { alive.add(id); }
     if (tokens[i].getAttribute("visibility") != "bluff") { inPlay.add(id); }
   }
@@ -1749,11 +1834,10 @@ function gen_fabled_tab(token_JSON, inPlay)
   token_landing.id = "night_order_" + token_JSON.id;
   token_JSON["tokens"].forEach((token) =>
   {
-    var token_perm = document.createElement("div");
-    token_perm.id = token;
-    token_perm.classList = "night_order_fabled_token_perm"
-    token_perm.style.backgroundImage = "url('assets/reminders/" + token + ".png')"
-    token_perm.setAttribute("onclick", "javascript:spawnFabledReminder('" + token + "')")
+    var uid = new Date().getTime()
+    var token_perm = generateReminderBacking(token_JSON.id, token, uid)
+    token_perm.id = `${token_JSON.id}_${token}`;
+    token_perm.setAttribute("onclick", `javascript:spawnFabledReminder("${token_JSON.id}", "${token}")`)
     token_landing.appendChild(token_perm)
   })
   div.appendChild(token_landing);
@@ -1767,6 +1851,132 @@ function gen_fabled_tab(token_JSON, inPlay)
   div.setAttribute("onmouseleave", "javascript:nightOrderScroll('false')");
   div.setAttribute("onclick", "javascript:expand_night_order_tab('" + token_JSON.id + "_night_order_tab')");
   div.appendChild(img);
+}
+//generates an html page that can be printed to a pdf from currently loaded script (WIP)
+//this is almost entirely written by chatGPT
+//Author @The-ai123
+function generateHTMLDocument() {
+  
+
+  // Start the HTML structure
+  let html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${CURRENT_SCRIPT[0].name}</title>
+  <style>
+    body {
+      margin: 10px;
+      font-family: Arial, sans-serif;
+      font-size:x-small;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      padding: 0;
+    }
+    td {
+      vertical-align: top;
+      padding: 3px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<p>Townsfolk<p>
+<table>`;
+
+  // Generate rows from the provided arrays for town
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'TOWN'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+
+html += `
+</table>
+
+<p>Outsiders<p>
+<table>`;
+
+  // Generate rows from the provided arrays for OUTsiders
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'OUT'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+  html += `
+</table>
+
+<p>Minions<p>
+<table>`;
+
+  // Generate rows from the provided arrays for minions
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'MIN'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+  html += `
+</table>
+
+<p>Demons<p>
+<table>`;
+
+  // Generate rows from the provided arrays for Demons
+  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'DEM'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+    </tr>`;
+    }
+  }
+
+// Close the HTML structure
+  html += `
+</table>
+</body>
+</html>`;
+
+  // Optional: Automatically open the generated HTML in a new window
+  const newWindow = window.open();
+  newWindow.document.write(html);
+  newWindow.document.close();
+}
+
+function download_current_script()
+{
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(CURRENT_SCRIPT)));
+  element.setAttribute('download', CURRENT_SCRIPT[0].name + ".json");
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
 }
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
