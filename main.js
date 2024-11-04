@@ -1978,6 +1978,14 @@ function download_current_script()
   element.click();
   document.body.removeChild(element);
 }
+
+//Enable/Disable edit mode
+//Edit mode allows user to edit the currently loaded script
+//author @The-ai123
+function update_current_script_name(){
+  CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent
+  console.log(CURRENT_SCRIPT[0].name)
+}
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
 //   var uid = time.getTime();

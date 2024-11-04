@@ -145,7 +145,7 @@
                         <label for="script_upload" id="script_upload_label">Upload Script</label><br>
                         <input style="opacity: 0;" type="file" id="script_upload" accept=".json" onchange="javascript:script_upload()">
                         <hr>
-                        <span id="script_upload_feedback" used="select">No File Loaded</span>
+                        <span contenteditable="true" oninput="update_current_script_name()" id="script_upload_feedback" used="select">No File Loaded</span>
                         <hr>
                         <br>
                         <span style="color: white; text-shadow: 0 0 10px black; font-size: 25pt;"># Of Players</span><br>
