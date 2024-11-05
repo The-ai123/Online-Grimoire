@@ -1979,13 +1979,27 @@ function download_current_script()
   document.body.removeChild(element);
 }
 
-//Enable/Disable edit mode
-//Edit mode allows user to edit the currently loaded script
+//Edit mode allows user to edit the name of the currently loaded script
 //author @The-ai123
 function update_current_script_name(){
-  CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent
-  console.log(CURRENT_SCRIPT[0].name)
+  CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent;
+  console.log(CURRENT_SCRIPT[0].name);
 }
+
+//updates the current to script to on screen tokens
+//author @The-ai123
+function update_current_script(){
+  //clear current script
+  CURRENT_SCRIPT = CURRENT_SCRIPT.filter(element => element.id == CURRENT_SCRIPT[0].id);
+  //repopulated based on tokens currently on screen(and not hidden or dead)
+  onscreen_tokens = document.getElementById("token_layer").getElementsByClassName("role_token");
+  console.log(onscreen_tokens[0])
+  for (i = 0; i < onscreen_tokens.length; i++) {
+    if(onscreen_tokens[i].getAttribute("visibility")=="show" && onscreen_tokens[i].getAttribute("viability") == "alive")
+    CURRENT_SCRIPT.push(onscreen_tokens[i].role)
+  }
+}
+
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
 //   var uid = time.getTime();
