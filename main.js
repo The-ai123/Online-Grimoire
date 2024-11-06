@@ -506,6 +506,7 @@ function mutate_menu(id, uid)
 function close_mutate_menu()
 {
   document.getElementById("mutate_menu_main").style.display = "none";
+  document.getElementById("mutate_menu_all_main").style.display = "none";
 }
 
 function mutate_token(idFrom, uid, idTo)
@@ -727,7 +728,7 @@ async function populate_script(script)
     landing.appendChild(ratio);
     landing.insertAdjacentHTML("beforeend", "<hr style='margin-block-end: 0em;'>");
   }
-  function options(type, tokenNames)
+  function options(type, tokenNames, text)
   {
     var landing = document.getElementById(type)
     for (i = 0; i < tokenNames.length; i++)
@@ -755,6 +756,21 @@ async function populate_script(script)
         landing.appendChild(outer_div)
       }
     }
+    //edit by @The-ai123
+    //Add button to add offscreen of each category
+    var outer_div = document.createElement("div");
+        outer_div.classList = "menu_list_div";
+        outer_div.title = title="Add offscript " + text;
+        outer_div.setAttribute("onclick", "add_offscript_character('"+ type +"')");
+        var label = document.createElement("label");
+        label.classList = "menu_list";
+        label.innerHTML = "Add Offscript " + text;
+        outer_div.appendChild(label);
+        outer_div.insertAdjacentHTML("beforeend", "&nbsp;");
+        var hr = document.createElement("hr");
+        hr.style.marginBlockEnd = "0em";
+        outer_div.appendChild(hr);
+        landing.appendChild(outer_div)
   }
   function clear(div)
   {
@@ -771,19 +787,19 @@ async function populate_script(script)
 
   clear("TOWN")
   header("Town", "TOWN", "#0033cc")
-  options("TOWN", scriptTokens)
+  options("TOWN", scriptTokens, "Town")
   clear("OUT")
   header("Outsiders", "OUT", "#1a53ff")
-  options("OUT", scriptTokens)
+  options("OUT", scriptTokens, "Outsiders")
   clear("MIN")
   header("Minions", "MIN", "#b30000")
-  options("MIN", scriptTokens)
+  options("MIN", scriptTokens, "Minions")
   clear("DEM")
   header("Demons", "DEM", "#e60000")
-  options("DEM", scriptTokens)
+  options("DEM", scriptTokens, "Demons")
   clear("TRAV")
   header("Travellers", "TRAV", "#6600ff")
-  options("TRAV", scriptTokens)
+  options("TRAV", scriptTokens, "Travellers")
   player_count_change();
   update_role_counts();
   clear_mutate_menu();
@@ -1856,7 +1872,7 @@ function gen_fabled_tab(token_JSON, inPlay)
 //this is almost entirely written by chatGPT
 //Author @The-ai123
 function generateHTMLDocument() {
-  
+  update_current_script()
 
   // Start the HTML structure
   let html = `
@@ -1970,6 +1986,7 @@ html += `
 
 function download_current_script()
 {
+  update_current_script()
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(CURRENT_SCRIPT)));
   element.setAttribute('download', CURRENT_SCRIPT[0].name + ".json");
@@ -1995,9 +2012,34 @@ function update_current_script(){
   onscreen_tokens = document.getElementById("token_layer").getElementsByClassName("role_token");
   console.log(onscreen_tokens[0])
   for (i = 0; i < onscreen_tokens.length; i++) {
-    if(onscreen_tokens[i].getAttribute("visibility")=="show" && onscreen_tokens[i].getAttribute("viability") == "alive")
-    CURRENT_SCRIPT.push(onscreen_tokens[i].role)
+    if(onscreen_tokens[i].getAttribute("visibility")=="show" && onscreen_tokens[i].getAttribute("viability") == "alive"){
+      let newElement = {"id":onscreen_tokens[i].role}
+      if (!CURRENT_SCRIPT.some(element => element.id == newElement.id)) {
+        CURRENT_SCRIPT.push(newElement); // Add the element only if it doesn't exist
+      }
+    }   
   }
+}
+
+function add_offscript_character(token_class){ 
+  document.getElementById("mutate_menu_all").innerHTML = "";
+  let allTokens = [];
+  for(let element in tokens_ref)
+  {
+    element = tokens_ref[element]
+    if (element.class == token_class)
+    {      
+      try {
+        var div = document.createElement("div");
+        div.id = "mutate_menu_all";
+        generateSampleToken(element["id"], div);
+        div.classList = "background_image mutate_menu_token";
+        div.setAttribute("onclick","spawnTokenDefault('" + element["id"] + "', 'show', '"+ token_class + "', 'alive')")
+        document.getElementById("mutate_menu_all").appendChild(div);
+        } catch { }
+    }
+  }
+  document.getElementById("mutate_menu_all_main").style.display = "inherit";
 }
 
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
