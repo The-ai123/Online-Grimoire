@@ -2021,6 +2021,9 @@ function update_current_script(){
   }
 }
 
+//Opens a mutate menu of all tokens of a set class
+//And when selected the token will be spawned on the board
+//Author: @The-ai123
 function add_offscript_character(token_class){ 
   document.getElementById("mutate_menu_all").innerHTML = "";
   let allTokens = [];
