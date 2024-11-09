@@ -45,6 +45,7 @@
 		"cerenovus",
 		"fearmonger",
 		"harpy",
+		"klaun",
 		"gorgon",
 		"mezepheles",
 		"pukka",
@@ -99,8 +100,9 @@
 		"chambermaid",
 		"mathematician",
 		"DAWN",
-		"leviathan",
-		"vizier"
+		"gnome",
+		"vizier",
+		"leviathan"
 	],
 	"othernight": [
 		"DUSK",
@@ -135,10 +137,10 @@
 		"devilsadvocate",
 		"witch",
 		"cerenovus",
-		"klaun",
 		"pithag",
 		"fearmonger",
 		"harpy",
+		"klaun",
 		"mezepheles",
 		"scarletwoman",
 		"summoner",
