@@ -1,3 +1,4 @@
+import concurrent.futures as cf
 import json
 import requests
 import os
@@ -7,6 +8,7 @@ from requests.exceptions import HTTPError
 WIKI_URL = "https://wiki.bloodontheclocktower.com{}"
 
 def is_offical(entry):
+    # An official character has a wiki page for itself.
     name = entry["name"]
     character_url = "/" + name.replace(" ", "_")
     try:
@@ -14,24 +16,36 @@ def is_offical(entry):
         response.raise_for_status()
         return True
     except HTTPError as e:
+        # An unofficial character has no wiki page. 
         if e.response.reason == "Not Found": return False
+        # Other errors that may occur are unintended.
         raise e
 
 def sync_description(entry):
     name = entry["name"]
     character_url = "/" + name.replace(" ", "_")
 
+    # Step 1: Get the HTML for the character.
     response = requests.get(WIKI_URL.format(character_url));
     response.raise_for_status()
     soup = BeautifulSoup(response.content, 'html.parser')
-    summary_header = soup.find(id='Summary')
 
+    # Step 2: Find the "Summary" elment. 
+    summary_header = soup.find(id='Summary')
+    # The wiki is set up in a very predictable manner:
+    # <h2>
+    #   <div id="Summary"> ... </div>
+    # <h2>
+    # \n
+    # <p> "Each night, something bad happens."\n</p>
+    # This gets the text and trims the quotes.
     summary_element = summary_header.parent.nextSibling.nextSibling
     summary = summary_element.text[1:-2]
 
-    if summary == data[id]["description"]: return
+    # Step 3: determine if an update is necessary.
+    if summary == entry["description"]: return
 
-    data[id]["description"] = summary
+    entry["description"] = summary
     print("UPDATE   " + (name + ": ").ljust(20) + summary)
 
 def download_image(entry):
@@ -77,33 +91,47 @@ def download_image(entry):
         img_file.write(img_response.content)
     print("DOWNLOAD " + (name + ": ").ljust(20) + f"{id}.png")
 
+def check_type(entry, official_keys, homebrew_keys):
+    # Unofficial characters will break the parser if we try to search for
+    # Them. 
+    if is_offical(entry): 
+        official_keys.append(entry["id"])
+    homebrew_keys.append(entry["id"])
 
+def main():
 
+    with open("data/tokens.json") as f:
+        data = json.loads(f.read())
 
-with open("data/tokens.json") as f:
-    data = json.loads(f.read())
+    official_keys = list()
+    homebrew_keys = list()
 
-official_keys = list()
-homebrew_keys = list()
+    with cf.ThreadPoolExecutor(max_workers=16) as executor:
+        official_threader = [executor.submit(check_type, data[k], official_keys, homebrew_keys) for k in data.keys()]
+        cf.wait(official_threader)
 
-for id in data.keys():
-    # if id == "cultleader": break
-    entry = data[id]
-    if not is_offical(entry): 
-        homebrew_keys.append(id)
-        continue
-    official_keys.append(id)
-    download_image(entry)
-    sync_description(entry)
+    with cf.ThreadPoolExecutor(max_workers=16) as executor:
+        # download_image(entry)
+        # sync_description(entry)
+        downloader_threader = [executor.submit(download_image, data[k]) for k in official_keys]
+        desc_threader = [executor.submit(sync_description, data[k]) for k in official_keys]
+        cf.wait(downloader_threader)
+        cf.wait(desc_threader)
 
-homebrew_keys.sort()
-official_keys.sort()
+    # The tokens.json file is intended to be sorted in alphabetical order.
+    # However, unofficial characters MUST come after official characters.
+    homebrew_keys.sort()
+    official_keys.sort()
 
-new_data = dict()
-for k in official_keys:
-    new_data[k] = data[k]
-for k in homebrew_keys:
-    new_data[k] = data[k]
+    new_data = dict()
+    for k in official_keys:
+        new_data[k] = data[k]
+    for k in homebrew_keys:
+        new_data[k] = data[k]
 
-with open("data/tokens.json", "w") as f:
-    f.write(json.dumps(new_data, indent=4))
+    # Put the data back in the box.
+    with open("data/tokens.json", "w") as f:
+        f.write(json.dumps(new_data, indent=4))
+
+if __name__ == "__main__":
+    main()
