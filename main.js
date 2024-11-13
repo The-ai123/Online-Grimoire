@@ -353,7 +353,7 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
 
   // Actual picture.
   var role = document.createElement("img");
-  role.src = `assets/icons/${id}.png`;
+  role.src = `assets/icons/official/${id}.png`;
   role.id = `${id}_${uid}_image`;
   role.classList = "token_image background_image";
   div.appendChild(role);
@@ -386,7 +386,7 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
   var outsider_betray = document.createElement("div");
   if (cat == "TRAV")
   {
-    outsider_betray.style.backgroundImage = "url('assets/icons/" + id + ".png')"
+    outsider_betray.style.backgroundImage = "url('assets/icons/official/" + id + ".png')"
   }
   outsider_betray.classList = "token_outsider_betray background_image";
   outsider_betray.id = id + "_" + uid + "_outsider_betray";
@@ -515,7 +515,7 @@ function mutate_token(idFrom, uid, idTo)
   let subject = document.getElementById(idFrom + "_token_" + uid);
 
   subject.setAttribute("cat", new_json["class"]);
-  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "url('assets/icons/" + idTo + ".png')" }
+  if (new_json["class"] == "TRAV") { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "url('assets/icons/official/" + idTo + ".png')" }
   else { subject.getElementsByClassName("token_outsider_betray")[0].style.backgroundImage = "" }
 
   subject.setAttribute("show_face", !new_json["hide_face"]);
@@ -526,7 +526,7 @@ function mutate_token(idFrom, uid, idTo)
 
   const image = document.getElementById(`${idFrom}_${uid}_image`);
   image.id = `${idTo}_${uid}_image`;
-  image.src = `assets/icons/${idTo}.png`;
+  image.src = `assets/icons/official/${idTo}.png`;
 
   document.getElementById(idFrom + "_" + uid + "_death").id = idTo + "_" + uid + "_death";
   document.getElementById(idFrom + "_" + uid + "_visibility_pip").id = idTo + "_" + uid + "_visibility_pip";
@@ -1057,7 +1057,7 @@ function generateSampleToken(id, el) {
   var role = document.createElement("img");
   role.id = "info_img_role";
   role.style.position = "absolute";
-  role.src = `assets/icons/${id}.png`;
+  role.src = `assets/icons/official/${id}.png`;
   el.appendChild(role);
 
   var roleName = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -1109,7 +1109,7 @@ function generateReminderBacking(roleName, reminder, uid) {
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${roleName}.png`;
+  role.src = `assets/icons/official/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1147,7 +1147,7 @@ function spawnReminderGhost(left, top, roleName, reminder, longId)
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${roleName}.png`;
+  role.src = `assets/icons/official/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1181,7 +1181,7 @@ function spawnReminder(roleName, reminder, uid, left, top)
   role.id = "info_img_role";
   role.style.position = "absolute";
   role.style.pointerEvents = "none";
-  role.src = `assets/icons/${roleName}.png`;
+  role.src = `assets/icons/official/${roleName}.png`;
   div.appendChild(role);
 
   var text = document.createElement("p");
@@ -1668,7 +1668,7 @@ function gen_night_order_tab_role(token_JSON, night, dead)
   div.appendChild(span);
   img = document.createElement("img");
   img.classList = "night_order_img";
-  img.src = "assets/icons/" + token_JSON.id + ".png";
+  img.src = "assets/icons/official/" + token_JSON.id + ".png";
   div.setAttribute("ontouchstart", "javascript:nightOrderScroll('true')");
   div.setAttribute("ontouchend", "javascript:nightOrderScroll('false')");
   div.setAttribute("onmouseenter", "javascript:nightOrderScroll('true')");
@@ -1775,10 +1775,10 @@ function gen_jinxes_tab(id1, id2, reason)
   imgDiv = document.createElement("div");
   imgDiv.classList = "night_order_img"
   img1 = document.createElement("img");
-  img1.src = "assets/icons/" + id1 + ".png";
+  img1.src = "assets/icons/official/" + id1 + ".png";
   img1.style = "width: 70%; position: absolute; top: 0px; left: 0px"
   img2 = document.createElement("img");
-  img2.src = "assets/icons/" + id2 + ".png";
+  img2.src = "assets/icons/official/" + id2 + ".png";
   img2.style = "width: 70%; position: absolute; bottom: 0px; right: 0px"
   imgDiv.appendChild(img1);
   imgDiv.appendChild(img2);
@@ -1828,7 +1828,7 @@ function gen_fabled_tab(token_JSON, inPlay)
   div.appendChild(span);
   var img = document.createElement("img");
   img.classList = "night_order_img";
-  img.src = "assets/icons/" + token_JSON.id + ".png";
+  img.src = "assets/icons/official/" + token_JSON.id + ".png";
   var token_landing = document.createElement("div");
   token_landing.classList = "night_order_fabled_token_container"
   token_landing.id = "night_order_" + token_JSON.id;
@@ -1897,7 +1897,7 @@ function generateHTMLDocument() {
     if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'TOWN'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
       <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
       <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
     </tr>`;
@@ -1915,7 +1915,7 @@ html += `
     if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'OUT'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
       <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
       <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
     </tr>`;
@@ -1932,7 +1932,7 @@ html += `
     if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'MIN'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
       <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
       <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
     </tr>`;
@@ -1949,7 +1949,7 @@ html += `
     if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'DEM'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
       <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
       <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
     </tr>`;
