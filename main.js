@@ -1984,6 +1984,8 @@ html += `
   newWindow.document.close();
 }
 
+//Downloads the script of onscreen tokens in a .json file
+//author @The-ai123
 function download_current_script()
 {
   update_current_script()
@@ -1996,7 +1998,7 @@ function download_current_script()
   document.body.removeChild(element);
 }
 
-//Edit mode allows user to edit the name of the currently loaded script
+//Updates the current script name to reflect the inputted name
 //author @The-ai123
 function update_current_script_name(){
   CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent;
