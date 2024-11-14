@@ -1971,12 +1971,27 @@ html += `
     </tr>`;
     }
   }
+  //close table
+  html += `
+  </table>`;
+  //for (let i = 1; i < )
+  html +=`
+  <table>
+        <tr>
+            <th>First Night</th>
+            <th>Other Nights</th>
+        </tr>
+        <tr>
+            <td><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="Image 1"> <b>Image Caption 1</b></td>
+            <td><img src="https://via.placeholder.com/50" alt="Image 2"> <b>Image Caption 2</b></td>
+        </tr>
+    </table>`
+
 
 // Close the HTML structure
-  html += `
-</table>
-</body>
-</html>`;
+  html +=`
+  </body>
+  </html>`;
 
   // Optional: Automatically open the generated HTML in a new window
   const newWindow = window.open();
