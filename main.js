@@ -4,6 +4,7 @@ const DEFAULT_FABLED = new Set(["doomsayer", "angel", "buddhist", "hellslibraria
 var tokens_ref;
 var loading = false;
 var CURRENT_SCRIPT;
+var night_order_ref;
 class NightCounter
 {
   constructor()
@@ -1871,7 +1872,7 @@ function gen_fabled_tab(token_JSON, inPlay)
 //generates an html page that can be printed to a pdf from currently loaded script (WIP)
 //this is almost entirely written by chatGPT
 //Author @The-ai123
-function generateHTMLDocument() {
+async function generateHTMLDocument() {
   update_current_script()
 
   // Start the HTML structure
@@ -1974,17 +1975,41 @@ html += `
   //close table
   html += `
   </table>`;
-  //for (let i = 1; i < )
+  //Night Order
+  var order = await get_JSON("nightsheet.json");
+  let first_night = [];
+  let other_night = [];
+  for(i = 0; i < order["firstnight"].length; i++){
+    id = order["firstnight"][i]
+    for(j=0; j < CURRENT_SCRIPT.length; j++){
+      if(CURRENT_SCRIPT[j].id === id){first_night.push(id)}
+    }
+  }
+  for(i = 0; i < order["othernight"].length; i++){
+    id = order["othernight"][i]
+    for(j=0; j < CURRENT_SCRIPT.length; j++){
+      if(CURRENT_SCRIPT[j].id === id){other_night.push(id)}
+    }
+  }
+  //fill night order table
   html +=`
   <table>
         <tr>
             <th>First Night</th>
             <th>Other Nights</th>
-        </tr>
-        <tr>
-            <td><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="Image 1"> <b>Image Caption 1</b></td>
-            <td><img src="https://via.placeholder.com/50" alt="Image 2"> <b>Image Caption 2</b></td>
-        </tr>
+        </tr>`
+  for(i = 0; i < (other_night.length < first_night.length ? first_night.length : other_night.length); i++){
+    let first_id = first_night[i];
+    let other_id = other_night[i];
+    html+=`
+    <tr>
+        <td><img style="width: 7.5%" src="assets/icons/official/${first_id}.png" alt="${tokens_ref[first_id].name}"> <b>${tokens_ref[first_id].name}</b></td>
+        <td><img style="width: 7.5%" src="assets/icons/official/${other_id}.png" alt="${tokens_ref[other_id].name}"> <b>${tokens_ref[other_id].name}</b></td>
+    </tr>
+  `
+  }
+  //end table
+  html+=`      
     </table>`
 
 
