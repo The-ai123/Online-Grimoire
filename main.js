@@ -2018,6 +2018,37 @@ async function generateHTMLDocument() {
   //end table
   html+=`      
     </table>`
+  //Print jinxes
+  html +=`
+  <p>Jinxes<p>
+  <table>`;
+  jinxes = await get_JSON("jinx.json");
+  for(i = 0; i <  jinxes.length; i++){
+    for(j = 0; j < CURRENT_SCRIPT.length; j++){
+      //if the first role in the pair is in the current script
+      if(jinxes[i].id == CURRENT_SCRIPT[j].id){
+        for(k = 0; k < jinxes[i].jinx.length; k++){
+          jinx = jinxes[i].jinx[k];         
+          for(l = 0; l < CURRENT_SCRIPT.length; l++){
+            //if the second role in the pair is in the current script
+            if(jinx.id == CURRENT_SCRIPT[l].id){
+              html += `
+              <tr>
+                <td style="width: 7.5%;"><img src="assets/icons/official/${jinxes[i].id}.png" alt="${tokens_ref[jinxes[i].id].name}"></td>
+                <td style="width: 15%; font-weight: bold;">${tokens_ref[jinxes[i].id].name}</td>
+                <td style="width: 7.5%;"><img src="assets/icons/official/${jinx.id}.png" alt="${tokens_ref[jinx.id].name}"></td>
+                <td style="width: 15%; font-weight: bold;">${tokens_ref[jinx.id].name}</td>
+                <td style="width: 70%;">${jinx.reason}</td>
+              </tr>`;
+            }
+          }          
+        }
+      }
+    }  
+  }
+  //end table
+  html+=`      
+  </table>`
 
   //Print travelers and fables
   html +=`
@@ -2057,7 +2088,7 @@ async function generateHTMLDocument() {
   html += `
   </table>`;
 
-// Close the HTML structure
+  // Close the HTML structure
   html +=`
   </body>
   </html>`;
@@ -2146,4 +2177,3 @@ function add_offscript_character(token_class){
 //   document.getElementById("token_drag_" + fabled + "_night_order_tab").prepend(div);
 //   dragInit();
 // }
-
