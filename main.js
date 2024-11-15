@@ -1906,6 +1906,7 @@ async function generateHTMLDocument() {
   </style>
 </head>
 <body>
+<h>${CURRENT_SCRIPT[0].name}</h>
 <p>Townsfolk<p>
 <table>`;
 
@@ -2001,12 +2002,19 @@ html += `
   for(i = 0; i < (other_night.length < first_night.length ? first_night.length : other_night.length); i++){
     let first_id = first_night[i];
     let other_id = other_night[i];
+    console.log(tokens_ref[first_id]);
     html+=`
-    <tr>
-        <td><img style="width: 7.5%" src="assets/icons/official/${first_id}.png" alt="${tokens_ref[first_id].name}"> <b>${tokens_ref[first_id].name}</b></td>
-        <td><img style="width: 7.5%" src="assets/icons/official/${other_id}.png" alt="${tokens_ref[other_id].name}"> <b>${tokens_ref[other_id].name}</b></td>
-    </tr>
-  `
+    <tr>`
+    if(tokens_ref[first_id]){
+      html+=`
+      <td><img style="width: 7.5%" src="assets/icons/official/${first_id}.png" alt="${tokens_ref[first_id].name}"> <b>${tokens_ref[first_id].name}</b></td>`
+    };
+    if(tokens_ref[first_id]){
+      html+=`
+        <td><img style="width: 7.5%" src="assets/icons/official/${other_id}.png" alt="${tokens_ref[other_id].name}"> <b>${tokens_ref[other_id].name}</b></td>`
+    }
+    html+=`
+    </tr>`
   }
   //end table
   html+=`      
