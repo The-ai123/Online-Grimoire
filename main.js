@@ -2021,17 +2021,17 @@ async function generateHTMLDocument() {
 
   //Print travelers and fables
   html +=`
-  <p>Fables<p>
+  <p>Travelers<p>
   <table>`;
 
   // Generate rows For travelers
-  for (element in tokens_ref.length) {
-    if(element.class == 'TRAV'){
+  for (element in tokens_ref) {
+    if(tokens_ref[element].class == 'TRAV'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/official/${element.id}.png" alt="${element.name}"></td>
-      <td style="width: 15%; font-weight: bold;">${element.name}</td>
-      <td style="width: 75%;">${element.description}</td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[element].id}.png" alt="${tokens_ref[element].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[element].name}</td>
+      <td style="width: 75%;">${tokens_ref[element].description}</td>
     </tr>`;
     }
   }
@@ -2040,13 +2040,16 @@ async function generateHTMLDocument() {
   </table>`;
 
   // Generate rows For fables
-  for (let i = 1; i < tokens_ref.length; i++) {
-    if(tokens_ref[i].class == 'FAB'){
+  html +=`
+  <p>Fables<p>
+  <table>`;
+  for (element in tokens_ref) {
+    if(tokens_ref[element].class == 'FAB'){
       html += `
     <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[i].id}.png" alt="${tokens_ref[i].name}"></td>
-      <td style="width: 15%; font-weight: bold;">${tokens_ref[i].name}</td>
-      <td style="width: 75%;">${tokens_ref[i].description}</td>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[element].id}.png" alt="${tokens_ref[element].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[element].name}</td>
+      <td style="width: 75%;">${tokens_ref[element].description}</td>
     </tr>`;
     }
   }
