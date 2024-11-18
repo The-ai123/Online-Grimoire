@@ -2031,10 +2031,9 @@ async function generateHTMLDocument() {
   html+=`      
     </table>`
   //Print jinxes
-  html +=`
-  <h2>Jinxes<h2>
-  <table>`;
+  
   jinxes = await get_JSON("jinx.json");
+  anyjinx = false
   for(i = 0; i <  jinxes.length; i++){
     for(j = 0; j < CURRENT_SCRIPT.length; j++){
       //if the first role in the pair is in the current script
@@ -2044,6 +2043,12 @@ async function generateHTMLDocument() {
           for(l = 0; l < CURRENT_SCRIPT.length; l++){
             //if the second role in the pair is in the current script
             if(jinx.id == CURRENT_SCRIPT[l].id){
+              if(!anyjinx){               
+                html +=`
+                <h2>Jinxes<h2>
+                <table>`;
+                anyjinx = true
+              }
               html += `
               <tr>
                 <td style="width: 7.5%;"><img src="assets/icons/official/${jinxes[i].id}.png" alt="${tokens_ref[jinxes[i].id].name}"></td>
@@ -2058,9 +2063,12 @@ async function generateHTMLDocument() {
       }
     }  
   }
-  //end table
-  html+=`      
-  </table>`
+  if(anyjinx){
+    //end table
+    html+=`      
+    </table>`
+  }
+  
 
   //Print travelers and fables
   html +=`
