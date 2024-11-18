@@ -1884,9 +1884,13 @@ async function generateHTMLDocument() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${CURRENT_SCRIPT[0].name}</title>
     <style>
+      @font-face {
+        font-family: PiratesBay;
+        src: url(sansation_light.woff);
+      }
       body {
         margin: 10px;
-        font-family: Arial, sans-serif;
+        font-family: PiratesBay;
         font-size:x-small;
       }
       table {
@@ -1894,20 +1898,28 @@ async function generateHTMLDocument() {
         border-collapse: collapse;
         margin: 0;
         padding: 0;
+        
       }
       td {
         vertical-align: top;
         padding: 3px;
+        font-size:15px
       }
       img {
         max-width: 100%;
         height: auto;
       }
+      h1 {
+       font-size:30px
+      }
+       h2 {
+       font-size:20px
+      }
     </style>
   </head>
   <body>
-  <h>${CURRENT_SCRIPT[0].name}</h>
-  <p>Townsfolk<p>
+  <h1>${CURRENT_SCRIPT[0].name}</h1>
+  <h2>Townsfolk<h2>
   <table>`;
 
     // Generate rows from the provided arrays for town
@@ -1925,7 +1937,7 @@ async function generateHTMLDocument() {
   html += `
   </table>
 
-  <p>Outsiders<p>
+  <h2>Outsiders<h2>
   <table>`;
 
     // Generate rows from the provided arrays for OUTsiders
@@ -1942,7 +1954,7 @@ async function generateHTMLDocument() {
     html += `
   </table>
 
-  <p>Minions<p>
+  <h2>Minions<h2>
   <table>`;
 
     // Generate rows from the provided arrays for minions
@@ -1959,7 +1971,7 @@ async function generateHTMLDocument() {
     html += `
   </table>
 
-  <p>Demons<p>
+  <h2>Demons<h2>
   <table>`;
 
   // Generate rows from the provided arrays for Demons
@@ -1996,8 +2008,8 @@ async function generateHTMLDocument() {
   html +=`
   <table>
         <tr>
-            <th>First Night</th>
-            <th>Other Nights</th>
+            <th><h2>First Night</h2></th>
+            <th><h2>Other Nights</h2></th>
         </tr>`
   for(i = 0; i < (other_night.length < first_night.length ? first_night.length : other_night.length); i++){
     let first_id = first_night[i];
@@ -2020,7 +2032,7 @@ async function generateHTMLDocument() {
     </table>`
   //Print jinxes
   html +=`
-  <p>Jinxes<p>
+  <h2>Jinxes<h2>
   <table>`;
   jinxes = await get_JSON("jinx.json");
   for(i = 0; i <  jinxes.length; i++){
@@ -2052,7 +2064,7 @@ async function generateHTMLDocument() {
 
   //Print travelers and fables
   html +=`
-  <p>Travelers<p>
+  <h2>Travelers<h2>
   <table>`;
 
   // Generate rows For travelers
@@ -2072,7 +2084,7 @@ async function generateHTMLDocument() {
 
   // Generate rows For fables
   html +=`
-  <p>Fables<p>
+  <h2>Fables<h2>
   <table>`;
   for (element in tokens_ref) {
     if(tokens_ref[element].class == 'FAB'){
