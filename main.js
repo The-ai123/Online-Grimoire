@@ -2019,11 +2019,17 @@ async function generateHTMLDocument() {
     if(tokens_ref[first_id]){
       html+=`
       <td><img style="width: 7.5%" src="assets/icons/official/${first_id}.png" alt="${tokens_ref[first_id].name}"> <b>${tokens_ref[first_id].name}</b></td>`
+    }else{
+      html+=`
+      <td></td>`
     };
     if(tokens_ref[other_id]){
       html+=`
         <td><img style="width: 7.5%" src="assets/icons/official/${other_id}.png" alt="${tokens_ref[other_id].name}"> <b>${tokens_ref[other_id].name}</b></td>`
-    }
+    }else{
+      html+=`
+      <td></td>`
+    };
     html+=`
     </tr>`
   }
