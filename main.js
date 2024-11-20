@@ -1916,6 +1916,9 @@ async function generateHTMLDocument() {
        font-size:20px
       }
     </style>
+    <script>
+      alert("Print page to pdf");
+    </script>
   </head>
   <body>
   <h1>${CURRENT_SCRIPT[0].name}</h1>
