@@ -4,6 +4,7 @@ const DEFAULT_FABLED = new Set(["doomsayer", "angel", "buddhist", "hellslibraria
 var tokens_ref;
 var loading = false;
 var CURRENT_SCRIPT;
+var night_order_ref;
 class NightCounter
 {
   constructor()
@@ -1871,94 +1872,110 @@ function gen_fabled_tab(token_JSON, inPlay)
 //generates an html page that can be printed to a pdf from currently loaded script (WIP)
 //this is almost entirely written by chatGPT
 //Author @The-ai123
-function generateHTMLDocument() {
+async function generateHTMLDocument() {
   update_current_script()
 
   // Start the HTML structure
-  let html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${CURRENT_SCRIPT[0].name}</title>
-  <style>
-    body {
-      margin: 10px;
-      font-family: Arial, sans-serif;
-      font-size:x-small;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0;
-      padding: 0;
-    }
-    td {
-      vertical-align: top;
-      padding: 3px;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
-</head>
-<body>
-<p>Townsfolk<p>
-<table>`;
+    let html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${CURRENT_SCRIPT[0].name}</title>
+    <style>
+      @font-face {
+        font-family: PiratesBay;
+        src: url(sansation_light.woff);
+      }
+      body {
+        margin: 10px;
+        font-family: PiratesBay;
+        font-size:x-small;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        
+      }
+      td {
+        vertical-align: top;
+        padding: 3px;
+        font-size:15px
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      h1 {
+       font-size:30px
+      }
+       h2 {
+       font-size:20px
+      }
+    </style>
+    <script>
+      alert("Print page to pdf");
+    </script>
+  </head>
+  <body>
+  <h1>${CURRENT_SCRIPT[0].name}</h1>
+  <h2>Townsfolk<h2>
+  <table>`;
 
-  // Generate rows from the provided arrays for town
-  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
-    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'TOWN'){
-      html += `
-    <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
-      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
-      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
-    </tr>`;
+    // Generate rows from the provided arrays for town
+    for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+      if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'TOWN'){
+        html += `
+      <tr>
+        <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+        <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+        <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+      </tr>`;
+      }
     }
-  }
 
-html += `
-</table>
-
-<p>Outsiders<p>
-<table>`;
-
-  // Generate rows from the provided arrays for OUTsiders
-  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
-    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'OUT'){
-      html += `
-    <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
-      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
-      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
-    </tr>`;
-    }
-  }
   html += `
-</table>
+  </table>
 
-<p>Minions<p>
-<table>`;
+  <h2>Outsiders<h2>
+  <table>`;
 
-  // Generate rows from the provided arrays for minions
-  for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
-    if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'MIN'){
-      html += `
-    <tr>
-      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
-      <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
-      <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
-    </tr>`;
+    // Generate rows from the provided arrays for OUTsiders
+    for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+      if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'OUT'){
+        html += `
+      <tr>
+        <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+        <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+        <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+      </tr>`;
+      }
     }
-  }
-  html += `
-</table>
+    html += `
+  </table>
 
-<p>Demons<p>
-<table>`;
+  <h2>Minions<h2>
+  <table>`;
+
+    // Generate rows from the provided arrays for minions
+    for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
+      if(tokens_ref[CURRENT_SCRIPT[i].id].class == 'MIN'){
+        html += `
+      <tr>
+        <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[CURRENT_SCRIPT[i].id].id}.png" alt="${tokens_ref[CURRENT_SCRIPT[i].id].name}"></td>
+        <td style="width: 15%; font-weight: bold;">${tokens_ref[CURRENT_SCRIPT[i].id].name}</td>
+        <td style="width: 75%;">${tokens_ref[CURRENT_SCRIPT[i].id].description}</td>
+      </tr>`;
+      }
+    }
+    html += `
+  </table>
+
+  <h2>Demons<h2>
+  <table>`;
 
   // Generate rows from the provided arrays for Demons
   for (let i = 1; i < CURRENT_SCRIPT.length; i++) {
@@ -1971,12 +1988,139 @@ html += `
     </tr>`;
     }
   }
-
-// Close the HTML structure
+  //close table
   html += `
-</table>
-</body>
-</html>`;
+  </table>`;
+  //Night Order
+  var order = await get_JSON("nightsheet.json");
+  let first_night = [];
+  let other_night = [];
+  for(i = 0; i < order["firstnight"].length; i++){
+    id = order["firstnight"][i]
+    for(j=0; j < CURRENT_SCRIPT.length; j++){
+      if(CURRENT_SCRIPT[j].id === id  && tokens_ref[id].class != "TRAV"){first_night.push(id)}
+    }
+  }
+  for(i = 0; i < order["othernight"].length; i++){
+    id = order["othernight"][i]
+    for(j=0; j < CURRENT_SCRIPT.length; j++){
+      if(CURRENT_SCRIPT[j].id === id && tokens_ref[id].class != "TRAV"){other_night.push(id)}
+    }
+  }
+  //fill night order table
+  html +=`
+  <table>
+        <tr>
+            <th><h2>First Night</h2></th>
+            <th><h2>Other Nights</h2></th>
+        </tr>`
+  for(i = 0; i < (other_night.length < first_night.length ? first_night.length : other_night.length); i++){
+    let first_id = first_night[i];
+    let other_id = other_night[i];
+    html+=`
+    <tr>`
+    if(tokens_ref[first_id]){
+      html+=`
+      <td><img style="width: 7.5%" src="assets/icons/official/${first_id}.png" alt="${tokens_ref[first_id].name}"> <b>${tokens_ref[first_id].name}</b></td>`
+    }else{
+      html+=`
+      <td></td>`
+    };
+    if(tokens_ref[other_id]){
+      html+=`
+        <td><img style="width: 7.5%" src="assets/icons/official/${other_id}.png" alt="${tokens_ref[other_id].name}"> <b>${tokens_ref[other_id].name}</b></td>`
+    }else{
+      html+=`
+      <td></td>`
+    };
+    html+=`
+    </tr>`
+  }
+  //end table
+  html+=`      
+    </table>`
+  //Print jinxes
+  
+  jinxes = await get_JSON("jinx.json");
+  anyjinx = false
+  for(i = 0; i <  jinxes.length; i++){
+    for(j = 0; j < CURRENT_SCRIPT.length; j++){
+      //if the first role in the pair is in the current script
+      if(jinxes[i].id == CURRENT_SCRIPT[j].id){
+        for(k = 0; k < jinxes[i].jinx.length; k++){
+          jinx = jinxes[i].jinx[k];         
+          for(l = 0; l < CURRENT_SCRIPT.length; l++){
+            //if the second role in the pair is in the current script
+            if(jinx.id == CURRENT_SCRIPT[l].id){
+              if(!anyjinx){               
+                html +=`
+                <h2>Jinxes<h2>
+                <table>`;
+                anyjinx = true
+              }
+              html += `
+              <tr>
+                <td style="width: 7.5%;"><img src="assets/icons/official/${jinxes[i].id}.png" alt="${tokens_ref[jinxes[i].id].name}"></td>
+                <td style="width: 15%; font-weight: bold;">${tokens_ref[jinxes[i].id].name}</td>
+                <td style="width: 7.5%;"><img src="assets/icons/official/${jinx.id}.png" alt="${tokens_ref[jinx.id].name}"></td>
+                <td style="width: 15%; font-weight: bold;">${tokens_ref[jinx.id].name}</td>
+                <td style="width: 70%;">${jinx.reason}</td>
+              </tr>`;
+            }
+          }          
+        }
+      }
+    }  
+  }
+  if(anyjinx){
+    //end table
+    html+=`      
+    </table>`
+  }
+  
+
+  //Print travelers and fables
+  html +=`
+  <h2>Travelers<h2>
+  <table>`;
+
+  // Generate rows For travelers
+  for (element in tokens_ref) {
+    if(tokens_ref[element].class == 'TRAV'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[element].id}.png" alt="${tokens_ref[element].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[element].name}</td>
+      <td style="width: 75%;">${tokens_ref[element].description}</td>
+    </tr>`;
+    }
+  }
+  //close table
+  html += `
+  </table>`;
+
+  // Generate rows For fables
+  html +=`
+  <h2>Fables<h2>
+  <table>`;
+  for (element in tokens_ref) {
+    if(tokens_ref[element].class == 'FAB'){
+      html += `
+    <tr>
+      <td style="width: 7.5%;"><img src="assets/icons/official/${tokens_ref[element].id}.png" alt="${tokens_ref[element].name}"></td>
+      <td style="width: 15%; font-weight: bold;">${tokens_ref[element].name}</td>
+      <td style="width: 75%;">${tokens_ref[element].description}</td>
+    </tr>`;
+    }
+  }
+  //close table
+  html += `
+  </table>`;
+
+  // Close the HTML structure
+  html +=`
+  </body>
+  </html>`;
 
   // Optional: Automatically open the generated HTML in a new window
   const newWindow = window.open();
@@ -1984,6 +2128,8 @@ html += `
   newWindow.document.close();
 }
 
+//Downloads the script of onscreen tokens in a .json file
+//author @The-ai123
 function download_current_script()
 {
   update_current_script()
@@ -1996,11 +2142,10 @@ function download_current_script()
   document.body.removeChild(element);
 }
 
-//Edit mode allows user to edit the name of the currently loaded script
+//Updates the current script name to reflect the inputted name
 //author @The-ai123
 function update_current_script_name(){
   CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent;
-  console.log(CURRENT_SCRIPT[0].name);
 }
 
 //updates the current to script to on screen tokens
@@ -2010,7 +2155,6 @@ function update_current_script(){
   CURRENT_SCRIPT = CURRENT_SCRIPT.filter(element => element.id == CURRENT_SCRIPT[0].id);
   //repopulated based on tokens currently on screen(and not hidden or dead)
   onscreen_tokens = document.getElementById("token_layer").getElementsByClassName("role_token");
-  console.log(onscreen_tokens[0])
   for (i = 0; i < onscreen_tokens.length; i++) {
     if(onscreen_tokens[i].getAttribute("visibility")=="show" && onscreen_tokens[i].getAttribute("viability") == "alive"){
       let newElement = {"id":onscreen_tokens[i].role}
@@ -2062,4 +2206,3 @@ function add_offscript_character(token_class){
 //   document.getElementById("token_drag_" + fabled + "_night_order_tab").prepend(div);
 //   dragInit();
 // }
-
