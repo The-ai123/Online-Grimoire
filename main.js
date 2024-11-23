@@ -334,7 +334,6 @@ function update_night_wedge_text()
 function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, nameText)
 {
   // Force tokens to appear if we try to add one. 
-  // (Why can we even see the rolelist in townsquare mode?)
   if (document.getElementById("body_actual").getAttribute("night") == "true") {
     visibility_toggle()
   }
@@ -652,11 +651,15 @@ function unprompt_reminders()
 //menu functions
 function open_menu()
 {
-  document.getElementById("menu_main").style.transform = "translateX(0px)";
+  if(document.getElementById("body_actual").getAttribute("night") == "false"){
+    document.getElementById("menu_main").style.transform = "translateX(0px)";
+  }
 }
 function close_menu()
 {
-  document.getElementById("menu_main").style.transform = "translateX(-300px)";
+  if(document.getElementById("body_actual").getAttribute("night") == "false"){
+    document.getElementById("menu_main").style.transform = "translateX(-300px)";
+  }
 }
 async function load_scripts()
 {
