@@ -1869,8 +1869,7 @@ function gen_fabled_tab(token_JSON, inPlay)
   div.setAttribute("onclick", "javascript:expand_night_order_tab('" + token_JSON.id + "_night_order_tab')");
   div.appendChild(img);
 }
-//generates an html page that can be printed to a pdf from currently loaded script (WIP)
-//this is almost entirely written by chatGPT
+//generates an html page that can be printed to a pdf from currently loaded script
 //Author @The-ai123
 async function generateHTMLDocument() {
   update_current_script()
