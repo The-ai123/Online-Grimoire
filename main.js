@@ -2188,6 +2188,15 @@ function add_offscript_character(token_class){
   document.getElementById("mutate_menu_all_main").style.display = "inherit";
 }
 
+//open and close menu with m key
+//could be expanded to allow for more keybinds
+document.addEventListener('keydown', function(event) {
+  const keyPressed = event.key; // Get the key that was pressed
+  if(event.key == 'm'){
+    document.getElementById("menu_main").style.transform == "translateX(0px)" ? close_menu() : open_menu();   
+  }
+});
+
 // function spawnNightOrderGhost(x, y, imgUrl, id, fabled) {
 //   var time = new Date();
 //   var uid = time.getTime();
