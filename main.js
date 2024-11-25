@@ -1217,6 +1217,29 @@ function spawnReminder(roleName, reminder, uid, left, top)
 
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
+
+  //edit by @The-ai123
+  //Make new reminder tokens check to see if they should be attatched to a character token
+  console.log("a")
+  players = document.getElementById("token_layer").getElementsByClassName("role_token");
+    const radius = 112.5;
+    for (const player in players) {
+      if(!isNaN(parseInt(player))){
+        try {
+          playerstyle = getComputedStyle(players[player]);
+          
+          diffx = parseInt(playerstyle.getPropertyValue('left'))+37.5 - left;
+          diffy = parseInt(playerstyle.getPropertyValue('top'))+37.5 - top;
+          if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
+            players[player].appendChild(el);
+            el.style.position = 'relative'
+            el.style.left = '0px'
+            el.style.top = '0px'
+          }
+        } catch (error) {console.log(error)}   
+      }
+         
+    }//end of edit
   if (!loading) { save_game_state(); }
 }
 
