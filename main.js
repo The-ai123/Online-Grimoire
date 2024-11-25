@@ -1503,7 +1503,7 @@ function attachTokenToToken(div){
           if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
             players[player].appendChild(div);
             div.style.position = 'relative'
-            div.style.left = '0px'
+            div.style.left = '-50px'
             div.style.top = '0px'
           }
         } catch (error) {console.log(error)}      
