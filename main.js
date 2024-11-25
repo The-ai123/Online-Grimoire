@@ -1218,28 +1218,8 @@ function spawnReminder(roleName, reminder, uid, left, top)
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
 
-  //edit by @The-ai123
-  //Make new reminder tokens check to see if they should be attatched to a character token
-  console.log("a")
-  players = document.getElementById("token_layer").getElementsByClassName("role_token");
-    const radius = 112.5;
-    for (const player in players) {
-      if(!isNaN(parseInt(player))){
-        try {
-          playerstyle = getComputedStyle(players[player]);
-          
-          diffx = parseInt(playerstyle.getPropertyValue('left'))+37.5 - left;
-          diffy = parseInt(playerstyle.getPropertyValue('top'))+37.5 - top;
-          if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
-            players[player].appendChild(el);
-            el.style.position = 'relative'
-            el.style.left = '0px'
-            el.style.top = '0px'
-          }
-        } catch (error) {console.log(error)}   
-      }
-         
-    }//end of edit
+  attachTokenToToken(div);//edit by @The-ai123. Make new reminder tokens check to see if they should be attach to a character token
+
   if (!loading) { save_game_state(); }
 }
 
@@ -1483,9 +1463,11 @@ function dragStart(e)
   if(e.target.parentNode.getAttribute("class")=="role_token drag"){
     tokenlayer = document.getElementById("remainerLayer");
     tokenlayer.appendChild(e.target);
-    e.target.position = 'absolute';
+    e.target.style.position = 'absolute';
     e.target.style.left = e.touches[0].clientX-37.5
     e.target.style.top = e.touches[0].clientY-37.5
+    token.style.position = 'absolute';
+
   }//end of edit
   var pos = getComputedStyle(token)
   if (e.type === "touchstart")
@@ -1502,30 +1484,41 @@ function dragStart(e)
     active = true;
   }
 }
+//Attatches a token to another token
+//Intended to be reminder tokens, but adjusting to allow for character tokens shouldn't be that complicated
+//author @The-ai123
+function attachTokenToToken(div){
+  if(div.getAttribute("class")=="reminder drag"){
+    players = document.getElementById("token_layer").getElementsByClassName("role_token");
+    const radius = 112.5;
+    const left = parseInt(getComputedStyle(div).getPropertyValue('left'))
+    const top =  parseInt(getComputedStyle(div).getPropertyValue('top'))
+    for (const player in players) {
+      if(!isNaN(parseInt(player))){
+        try {
+          playerstyle = getComputedStyle(players[player]);
+          
+          diffx = parseInt(playerstyle.getPropertyValue('left'))+37.5 - left;
+          diffy = parseInt(playerstyle.getPropertyValue('top'))+37.5 - top;
+          if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
+            players[player].appendChild(div);
+            div.style.position = 'relative'
+            div.style.left = '0px'
+            div.style.top = '0px'
+          }
+        } catch (error) {console.log(error)}      
+      }     
+    }
+  }//end of edit
+}
+
 function dragEnd(e)
 {
   const el = e.target;
   //edit by @The-ai123
   //if a reminder token is touching a role token it 'attaches' itself to the role token
   if(el.getAttribute("class")=="reminder drag"){
-    players = document.getElementById("token_layer").getElementsByClassName("role_token");
-    const radius = 112.5;
-    const left = parseInt(getComputedStyle(el).getPropertyValue('left'))
-    const top =  parseInt(getComputedStyle(el).getPropertyValue('top'))
-    for (const player in players) {
-      try {
-        playerstyle = getComputedStyle(players[player]);
-        
-        diffx = parseInt(playerstyle.getPropertyValue('left'))+37.5 - left;
-        diffy = parseInt(playerstyle.getPropertyValue('top'))+37.5 - top;
-        if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
-          players[player].appendChild(el);
-          el.style.position = 'relative'
-          el.style.left = '0px'
-          el.style.top = '0px'
-        }
-      } catch (error) {}      
-    }
+    attachTokenToToken(el)
   }//end of edit
   // The good, evil, and generic reminder tokens.
   if (el.getAttribute("disposable-reminder"))
