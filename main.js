@@ -760,7 +760,6 @@ async function populate_script(script)
         landing.appendChild(outer_div)
       }
     }
-    //edit by @The-ai123
     //Add button to add offscreen of each category
     var outer_div = document.createElement("div");
         outer_div.classList = "menu_list_div";
@@ -1218,7 +1217,7 @@ function spawnReminder(roleName, reminder, uid, left, top)
   document.getElementById("remainerLayer").appendChild(div);
   dragInit();
 
-  attachTokenToToken(div);//edit by @The-ai123. Make new reminder tokens check to see if they should be attach to a character token
+  attachTokenToToken(div);//Make new reminder tokens check to see if they should be attach to a character token
 
   if (!loading) { save_game_state(); }
 }
@@ -1486,7 +1485,6 @@ function dragStart(e)
 }
 //Attatches a token to another token
 //Intended to be reminder tokens, but adjusting to allow for character tokens shouldn't be that complicated
-//author @The-ai123
 function attachTokenToToken(div){
   if(div.getAttribute("class")=="reminder drag"){
     players = document.getElementById("token_layer").getElementsByClassName("role_token");
@@ -1509,17 +1507,16 @@ function attachTokenToToken(div){
         } catch (error) {console.log(error)}      
       }     
     }
-  }//end of edit
+  }
 }
 
 function dragEnd(e)
 {
   const el = e.target;
-  //edit by @The-ai123
   //if a reminder token is touching a role token it 'attaches' itself to the role token
   if(el.getAttribute("class")=="reminder drag"){
     attachTokenToToken(el)
-  }//end of edit
+  }
   // The good, evil, and generic reminder tokens.
   if (el.getAttribute("disposable-reminder"))
   {
@@ -1920,7 +1917,6 @@ function gen_fabled_tab(token_JSON, inPlay)
   div.appendChild(img);
 }
 //generates an html page that can be printed to a pdf from currently loaded script
-//Author @The-ai123
 async function generateHTMLDocument() {
   update_current_script()
 
@@ -2178,7 +2174,6 @@ async function generateHTMLDocument() {
 }
 
 //Downloads the script of onscreen tokens in a .json file
-//author @The-ai123
 function download_current_script()
 {
   update_current_script()
@@ -2192,13 +2187,11 @@ function download_current_script()
 }
 
 //Updates the current script name to reflect the inputted name
-//author @The-ai123
 function update_current_script_name(){
   CURRENT_SCRIPT[0].name = document.getElementById("script_upload_feedback").textContent;
 }
 
 //updates the current to script to on screen tokens
-//author @The-ai123
 function update_current_script(){
   //clear current script
   CURRENT_SCRIPT = CURRENT_SCRIPT.filter(element => element.id == CURRENT_SCRIPT[0].id);
@@ -2216,7 +2209,6 @@ function update_current_script(){
 
 //Opens a mutate menu of all tokens of a set class
 //And when selected the token will be spawned on the board
-//Author: @The-ai123
 function add_offscript_character(token_class){ 
   document.getElementById("mutate_menu_all").innerHTML = "";
   let allTokens = [];
