@@ -1455,6 +1455,15 @@ function dragStart(e)
 {
   if (document.getElementById("move_toggle").style.backgroundColor != "green" && isRoleToken(e.target)) { return }
   const token = getActualDragged(e.target);
+  //edited by @The-ai123
+  //
+  if(e.target.parentNode.getAttribute("class")=="role_token drag"){
+    tokenlayer = document.getElementById("remainerLayer");
+    tokenlayer.appendChild(e.target);
+    e.target.position = 'absolute';
+    e.target.style.left = e.touches[0].clientX-37.5
+    e.target.style.top = e.touches[0].clientY-37.5
+  }//end of edit
   var pos = getComputedStyle(token)
   if (e.type === "touchstart")
   {
@@ -1473,6 +1482,28 @@ function dragStart(e)
 function dragEnd(e)
 {
   const el = e.target;
+  //edit by @The-ai123
+  //if a reminder token is touching a role token it 'attaches' itself to the role token
+  if(el.getAttribute("class")=="reminder drag"){
+    players = document.getElementById("token_layer").getElementsByClassName("role_token");
+    const radius = 112.5;
+    const left = parseInt(getComputedStyle(el).getPropertyValue('left'))
+    const top =  parseInt(getComputedStyle(el).getPropertyValue('top'))
+    for (const player in players) {
+      try {
+        playerstyle = getComputedStyle(players[player]);
+        
+        diffx = parseInt(playerstyle.getPropertyValue('left'))+37.5 - left;
+        diffy = parseInt(playerstyle.getPropertyValue('top'))+37.5 - top;
+        if(Math.sqrt(diffx*diffx + diffy * diffy) < 75){
+          players[player].appendChild(el);
+          el.style.position = 'relative'
+          el.style.left = '0px'
+          el.style.top = '0px'
+        }
+      } catch (error) {}      
+    }
+  }//end of edit
   // The good, evil, and generic reminder tokens.
   if (el.getAttribute("disposable-reminder"))
   {
