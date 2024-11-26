@@ -1763,10 +1763,17 @@ function gen_night_order_tab_role(token_JSON, night, dead)
                   playerName = players[player].getElementsByClassName("token_text")[0].textContent;
                   if(playerName != ""){
                     if(reminderExists){
-                      completeNightText += " and "
+                      tempNightText += " and "
                     }
                     reminderExists = true;
                     tempNightText += playerName
+                  }else{
+                    if(reminderExists){
+                      tempNightText += " and "
+                    }
+                    reminderExists = true;
+                    tempNightText += " the "
+                    tempNightText += tokens_ref[players[player].getAttribute("role")].name;
                   }
                 }
               }            
