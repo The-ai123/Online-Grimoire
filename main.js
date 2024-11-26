@@ -98,6 +98,12 @@ function generate_game_state_json()
     state.players[i].left = players[i].style.left;
     state.players[i].top = players[i].style.top;
     state.players[i].name = players[i].getElementsByClassName("token_text")[0].innerHTML;
+    reminders = [];
+    reminderdivs = players[i].getElementsByClassName("reminder drag");
+    for(j = 0; j < reminderdivs.length; j++){
+      reminders.push([reminderdivs[j].getAttribute("role"),reminderdivs[j].getElementsByClassName("reminder_text")[0].innerHTML, reminderdivs[j].getAttribute("uid")])
+    }
+    state.players[i].reminders = reminders;
   }
   state.reminders = [];
   reminders = document.getElementById("reminder_layer").getElementsByClassName("reminder");
@@ -144,7 +150,7 @@ async function load_game_state_json(state)
   document.getElementById("body_actual").style.setProperty("--BG-IMG", state.background);
   for (let i = 0; i < state.players.length; i++)
   {
-    spawnToken(state.players[i].role, state.players[i].uid, state.players[i].visibility, state.players[i].cat, state.players[i].hide_face, state.players[i].viability, state.players[i].left, state.players[i].top, state.players[i].name)
+    spawnToken(state.players[i].role, state.players[i].uid, state.players[i].visibility, state.players[i].cat, state.players[i].hide_face, state.players[i].viability, state.players[i].left, state.players[i].top, state.players[i].name, state.players[i].reminders)
   }
   for (const reminder of state.reminders) 
   {
@@ -331,7 +337,7 @@ function update_night_wedge_text()
 }
 
 //token functions
-function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, nameText)
+function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, nameText, reminders)
 {
   // Force tokens to appear if we try to add one. 
   if (document.getElementById("body_actual").getAttribute("night") == "true") {
@@ -401,6 +407,11 @@ function spawnToken(id, uid, visibility, cat, hide_face, viability, left, top, n
 
   document.getElementById("token_layer").appendChild(div);
 
+  // Add reminder tokens
+  for(i = 0; i < reminders.length; i++){
+    reminder = spawnReminder(reminders[i][0],reminders[i][1],reminders[i][2],'-50px','0px')
+    div.appendChild(reminder);
+  }
   // Random admin stuff.
   update_role_counts();
   player_count_change();
@@ -451,7 +462,7 @@ function spawnTokenDefault(id, visibility, cat, hide_face)
 {
   var time = new Date();
   var uid = time.getTime()
-  spawnToken(id, uid, visibility, cat, hide_face, "alive", (parseInt(window.visualViewport.width / 2) - 75) + "px", "calc(50% - 75px)", "");
+  spawnToken(id, uid, visibility, cat, hide_face, "alive", (parseInt(window.visualViewport.width / 2) - 75) + "px", "calc(50% - 75px)", "", []);
 }
 function remove_token(id, uid)
 {
@@ -1218,8 +1229,8 @@ function spawnReminder(roleName, reminder, uid, left, top)
   dragInit();
 
   attachTokenToToken(div);//Make new reminder tokens check to see if they should be attach to a character token
-
   if (!loading) { save_game_state(); }
+  return(div);
 }
 
 function spawnFabledReminder(roleName, reminder)
