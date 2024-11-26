@@ -100,7 +100,7 @@ function generate_game_state_json()
     state.players[i].name = players[i].getElementsByClassName("token_text")[0].innerHTML;
   }
   state.reminders = [];
-  reminders = document.getElementById("remainerLayer").getElementsByClassName("reminder");
+  reminders = document.getElementById("reminder_layer").getElementsByClassName("reminder");
   for (i = 0; i < reminders.length; i++)
   {
     state.reminders[i] = new Object();
@@ -213,7 +213,7 @@ function orientationChange()
   {
     swapObjectOrientation(players[i]);
   }
-  reminders = document.getElementById("remainerLayer").getElementsByClassName("reminder");
+  reminders = document.getElementById("reminder_layer").getElementsByClassName("reminder");
   for (i = 0; i < reminders.length; i++)
   {
     swapObjectOrientation(reminders[i]);
@@ -465,12 +465,12 @@ function remove_token(id, uid)
 }
 function clean_tokens(uid)
 {
-  let reminders = document.getElementById("remainerLayer").getElementsByClassName("reminder");
+  let reminders = document.getElementById("reminder_layer").getElementsByClassName("reminder");
   for (i = reminders.length - 1; i != -1; --i)
   {
     if (reminders[i].getAttribute("uid").substring(0, UID_LENGTH) == uid)
     {
-      document.getElementById("remainerLayer").removeChild(reminders[i]);
+      document.getElementById("reminder_layer").removeChild(reminders[i]);
     }
   }
 }
@@ -637,7 +637,7 @@ function unprompt_reminders()
     element.setAttribute("onclick", null);
     element.setAttribute("onmouseup", "javascript:prompt_delete_reminder('" + element.id + "')");
   }
-  tokens = document.getElementById("remainerLayer").children;
+  tokens = document.getElementById("reminder_layer").children;
   for (var i = 0; i < tokens.length; i++)
   {
     var element = tokens[i];
@@ -1214,7 +1214,7 @@ function spawnReminder(roleName, reminder, uid, left, top)
   trash.id = roleName + "_" + uid + "_img";
   div.appendChild(trash);
 
-  document.getElementById("remainerLayer").appendChild(div);
+  document.getElementById("reminder_layer").appendChild(div);
   dragInit();
 
   attachTokenToToken(div);//Make new reminder tokens check to see if they should be attach to a character token
@@ -1458,7 +1458,7 @@ function dragStart(e)
   if (document.getElementById("move_toggle").style.backgroundColor != "green") { return }
   const token = getActualDragged(e.target);
   if(e.target.parentNode.getAttribute("class")=="role_token drag"){
-    tokenlayer = document.getElementById("remainerLayer");
+    tokenlayer = document.getElementById("reminder_layer");
     tokenlayer.appendChild(e.target);
     e.target.style.position = 'absolute';
     e.target.style.left = e.touches[0].clientX-37.5
