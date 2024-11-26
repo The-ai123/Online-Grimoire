@@ -1455,7 +1455,7 @@ function dragInit()
 }
 function dragStart(e)
 {
-  if (document.getElementById("move_toggle").style.backgroundColor != "green" && isRoleToken(e.target)) { return }
+  if (document.getElementById("move_toggle").style.backgroundColor != "green") { return }
   const token = getActualDragged(e.target);
   if(e.target.parentNode.getAttribute("class")=="role_token drag"){
     tokenlayer = document.getElementById("remainerLayer");
