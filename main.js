@@ -1501,6 +1501,8 @@ function attachTokenToToken(div){
             div.style.position = 'relative'
             div.style.left = '-50px'
             div.style.top = '0px'
+            //update night order
+            populate_night_order()
           }
         } catch (error) {console.log(error)}      
       }     
@@ -1735,7 +1737,6 @@ function gen_night_order_tab_role(token_JSON, night, dead)
       const afterFirstBrace = desc.slice(desc.indexOf('{') + 1);
       const content = afterFirstBrace.split('}')[0]; // Content inside first '{...}'
       desc = afterFirstBrace.slice(afterFirstBrace.indexOf('}') + 1); // Text after first '}'
-      console.log(desc)
       const [reminder, defaultText] = content.split('='); // Split inside content
       reminderExists = false
       players = document.getElementById("token_layer").getElementsByClassName("role_token");
