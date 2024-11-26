@@ -1457,8 +1457,6 @@ function dragStart(e)
 {
   if (document.getElementById("move_toggle").style.backgroundColor != "green" && isRoleToken(e.target)) { return }
   const token = getActualDragged(e.target);
-  //edited by @The-ai123
-  //
   if(e.target.parentNode.getAttribute("class")=="role_token drag"){
     tokenlayer = document.getElementById("remainerLayer");
     tokenlayer.appendChild(e.target);
@@ -1467,7 +1465,7 @@ function dragStart(e)
     e.target.style.top = e.touches[0].clientY-37.5
     token.style.position = 'absolute';
 
-  }//end of edit
+  }
   var pos = getComputedStyle(token)
   if (e.type === "touchstart")
   {
@@ -1727,7 +1725,53 @@ function gen_night_order_tab_role(token_JSON, night, dead)
   div.style.backgroundImage = "linear-gradient(to right, rgba(0,0,0,0) , " + color + ")";
   span = document.createElement("span");
   span.classList = "night_order_span"
-  span.innerHTML = token_JSON[night.substring(0, 5) + "_night_desc"];
+  //implement dynamic night order
+  desc = token_JSON[night.substring(0, 5) + "_night_desc"];
+  const start = desc.indexOf('{') + 1;
+  let tempNightText = ""
+  if(start != 0){
+    while (desc.includes('{') && desc.includes('}')) {
+      tempNightText += desc.split('{')[0]; // Text before first '{'
+      const afterFirstBrace = desc.slice(desc.indexOf('{') + 1);
+      const content = afterFirstBrace.split('}')[0]; // Content inside first '{...}'
+      desc = afterFirstBrace.slice(afterFirstBrace.indexOf('}') + 1); // Text after first '}'
+      console.log(desc)
+      const [reminder, defaultText] = content.split('='); // Split inside content
+      reminderExists = false
+      players = document.getElementById("token_layer").getElementsByClassName("role_token");
+      for (const player in players) {
+        if(!isNaN(parseInt(player))){
+          try {
+            childTokens = players[player].getElementsByClassName("reminder drag");
+            for(childtoken = 0; childtoken < childTokens.length; childtoken++){
+              if(childTokens[childtoken].getAttribute("role") == token_JSON.id){
+                remindertext = childTokens[childtoken].getElementsByClassName("reminder_text")[0].textContent
+                if(remindertext==reminder){
+                  
+                  playerName = players[player].getElementsByClassName("token_text")[0].textContent;
+                  if(playerName != ""){
+                    if(reminderExists){
+                      completeNightText += " and "
+                    }
+                    reminderExists = true;
+                    tempNightText += playerName
+                  }
+                }
+              }            
+            }
+          } catch (error) {console.log(error)}      
+        }     
+      }
+      if(!reminderExists){
+        tempNightText += defaultText;
+      }
+    }
+    
+    tempNightText += desc
+    span.innerHTML = tempNightText;
+  }else{
+    span.innerHTML = desc;
+  }
   span.id = token_JSON.id + "_night_order_tab_span";
   div.appendChild(span);
   img = document.createElement("img");
